@@ -41,7 +41,7 @@ public class Pikmin : MonoBehaviour
 
                     if (!isAvoid)
                     {
-                        agent.stoppingDistance = 5f;
+                        agent.stoppingDistance = 2f;
                         agent.isStopped = false;
                         agent.SetDestination(target.position);
                     }
