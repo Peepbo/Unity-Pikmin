@@ -7,20 +7,40 @@ public enum PikminState
 {
     STAY,
     FOLLOW,
+    FLY,
     ATTACK
 }
 
 public class Pikmin : MonoBehaviour
 {
-    public Transform target;
-    NavMeshAgent agent;
     public bool isAvoid = false;
     public PikminState state;
+
+    public Vector3 flyTarget;
+
+    public Transform target;
+    private NavMeshAgent agent;
+
+    float checkTime;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         state = PikminState.STAY;
+    }
+
+    private void Start()
+    {
+        target = PlayerController.GetPos;
+    }
+
+    public void FlyPikmin(Vector3 pos)
+    {
+        agent.enabled = false;
+        state = PikminState.FLY;
+        flyTarget = pos;
+
+        transform.parent = null;
     }
 
     // Update is called once per frame
@@ -50,6 +70,37 @@ public class Pikmin : MonoBehaviour
                         Vector3 angle = (transform.position - target.position).normalized;
                         agent.stoppingDistance = 0.75f;
                         agent.SetDestination(transform.position + angle);
+                    }
+                }
+                break;
+            case PikminState.FLY:
+                {
+                    if(Vector3.Magnitude(flyTarget - transform.position) < 1f)
+                    {
+                        state = PikminState.STAY;
+                        Rigidbody rigid = GetComponent<Rigidbody>();
+                        rigid.isKinematic = true;
+                        rigid.Sleep();
+                        agent.enabled = true;
+                    }
+
+                    else 
+                    {
+                        RaycastHit hit;
+                        if (Physics.Raycast(transform.position, Vector3.down, out hit, 0.5f))
+                        {
+                            checkTime += Time.deltaTime;
+                        }
+
+                        if(checkTime > 1.3f)
+                        {
+                            checkTime = 0;
+                            state = PikminState.STAY;
+                            Rigidbody rigid = GetComponent<Rigidbody>();
+                            rigid.isKinematic = true;
+                            rigid.Sleep();
+                            agent.enabled = true;
+                        }
                     }
                 }
                 break;
