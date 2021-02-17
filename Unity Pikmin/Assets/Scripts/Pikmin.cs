@@ -20,12 +20,14 @@ public class Pikmin : MonoBehaviour
 
     public Transform target;
     private NavMeshAgent agent;
+    private Rigidbody rigid;
 
     float checkTime;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        rigid = GetComponent<Rigidbody>();
         state = PikminState.STAY;
     }
 
@@ -39,7 +41,7 @@ public class Pikmin : MonoBehaviour
         agent.enabled = false;
         state = PikminState.FLY;
         flyTarget = pos;
-
+        rigid.useGravity = true;
         transform.parent = null;
     }
 
@@ -107,5 +109,11 @@ public class Pikmin : MonoBehaviour
             case PikminState.ATTACK:
                 break;
         }
+    }
+
+    public void PickMe() 
+    { 
+        rigid.useGravity = false;
+        agent.enabled = false;
     }
 }

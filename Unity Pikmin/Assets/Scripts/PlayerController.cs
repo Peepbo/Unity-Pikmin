@@ -4,14 +4,30 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    enum PlayerState
+    {
+        Idle,
+        Walk,
+        ThrowReady,
+        ThrowAction
+    }
+
+    PlayerState state;
+
     public List<Pikmin> pikmins = new List<Pikmin>();
     public int myPikminCount = 0;
     public GameObject myHand;
 
+    private Animator anim;
+    private bool isWalk;
+     
     private void Awake()
     {
         GetPos = transform;
+        anim = transform.GetComponentInChildren<Animator>();
+        state = PlayerState.Idle;
     }
+
     private void Start()
     {
         var obj = GameObject.FindGameObjectsWithTag("Pikmin");
@@ -25,6 +41,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Animation();
+
         Move();
 
         //mouse left btn
@@ -37,12 +55,43 @@ public class PlayerController : MonoBehaviour
         CatchPikmin();
     }
 
+    private void Animation()
+    {
+        switch (state)
+        {
+            case PlayerState.Idle:
+                anim.SetFloat("MoveSpeed", 0);
+                break;
+            case PlayerState.Walk:
+                anim.SetFloat("MoveSpeed", 1);
+                break;
+            case PlayerState.ThrowReady:
+                anim.SetBool("RightClick", true);
+                break;
+            case PlayerState.ThrowAction:
+                anim.SetBool("RightClick", false);
+                state = PlayerState.Idle;
+                break;
+        }
+    }
+
     private void Move()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        if (state > (PlayerState)1) return;
+
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
 
         Vector3 pos = transform.position;
+
+        if (Mathf.Abs(h) + (Mathf.Abs(v)) > 0f)
+        {
+            state = PlayerState.Walk;
+
+            transform.rotation = Quaternion.Lerp(transform.rotation, 
+                Quaternion.LookRotation(new Vector3( h, 0, v)), Time.deltaTime*5f);
+        }
+        else state = PlayerState.Idle;
 
         pos.x += h * Time.deltaTime * 5f;
         pos.z += v * Time.deltaTime * 5f;
@@ -76,6 +125,20 @@ public class PlayerController : MonoBehaviour
 
     private void RightButton()
     {
+        if (Input.GetMouseButton(1))
+        {
+            if(myHand.transform.childCount > 0)
+            {
+                Vector3 mouseHit = MouseController.GetHit;
+                mouseHit.y = 0;
+
+                transform.rotation = Quaternion.Lerp(transform.rotation,
+        Quaternion.LookRotation(mouseHit), Time.deltaTime * 5f);
+
+                state = PlayerState.ThrowReady;
+            }
+        }
+
         if (Input.GetMouseButtonUp(1))
         {
             if (myHand.transform.childCount > 0)
@@ -87,10 +150,13 @@ public class PlayerController : MonoBehaviour
                 pik.FlyPikmin(mouseHit);
 
                 Vector3 Vo = Parabola.CalculateVelocity(mouseHit, myHand.transform.position, 1.5f);
+                pik.transform.rotation = Quaternion.identity;
 
                 Rigidbody rigid = pik.GetComponent<Rigidbody>();
                 rigid.isKinematic = false;
                 rigid.velocity = Vo;
+
+                state = PlayerState.ThrowAction;
             }
         }
     }
@@ -127,8 +193,11 @@ public class PlayerController : MonoBehaviour
             {
                 choose.transform.position = myHand.transform.position;
                 choose.transform.parent = myHand.transform;
+                choose.transform.rotation = myHand.transform.rotation;
 
                 choose.state = PikminState.ATTACK;
+                choose.PickMe();
+                //choose.
                 myPikminCount--;
             }
         }
