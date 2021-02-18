@@ -1,10 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
-    enum PlayerState
+    public enum PlayerState
     {
         Idle,
         Walk,
@@ -12,14 +13,15 @@ public class PlayerController : MonoBehaviour
         ThrowAction
     }
 
-    PlayerState state;
-
+    public PlayerState state;
     public List<Pikmin> pikmins = new List<Pikmin>();
     public int myPikminCount = 0;
     public GameObject myHand;
 
     private Animator anim;
-    private bool isWalk;
+    private Vector3 throwPos;
+
+    Action idleAct, walkAct, throw0Act, throw1Act;
      
     private void Awake()
     {
@@ -36,49 +38,67 @@ public class PlayerController : MonoBehaviour
         {
             pikmins.Add(obj[i].GetComponent<Pikmin>());
         }
+
+        SetAction();
+    }
+
+    private void SetAction()
+    {
+        idleAct = () =>
+        {
+            Move();
+            CatchPikmin();
+            LeftButton();
+            RightButton();
+            anim.SetFloat("MoveSpeed", 0);
+        };
+
+        walkAct = () =>
+        {
+            Move();
+            CatchPikmin();
+            LeftButton();
+            RightButton();
+            anim.SetFloat("MoveSpeed", 1);
+        };
+
+        throw0Act = () =>
+        {
+            anim.SetBool("RightClick", true);
+            RightButton();
+        };
+
+        throw1Act = () =>
+        {
+            anim.SetBool("RightClick", false);
+        };
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        Animation();
-
-        Move();
-
-        //mouse left btn
-        LeftButton();
-
-        //mouse right btn
-        RightButton();
-
-        //keyboard space btn
-        CatchPikmin();
-    }
+    private void Update() => Animation();
 
     private void Animation()
     {
         switch (state)
         {
             case PlayerState.Idle:
-                anim.SetFloat("MoveSpeed", 0);
+                idleAct();
                 break;
             case PlayerState.Walk:
-                anim.SetFloat("MoveSpeed", 1);
+                walkAct();
                 break;
             case PlayerState.ThrowReady:
-                anim.SetBool("RightClick", true);
+                throw0Act();
                 break;
             case PlayerState.ThrowAction:
-                anim.SetBool("RightClick", false);
-                state = PlayerState.Idle;
+                throw1Act();
                 break;
         }
     }
 
+    #region Action
     private void Move()
     {
-        if (state > (PlayerState)1) return;
-
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
@@ -114,7 +134,9 @@ public class PlayerController : MonoBehaviour
                     {
                         if (pik.state == PikminState.STAY)
                         {
+                            pik.ChangeTarget = transform;
                             pik.state = PikminState.FOLLOW;
+
                             myPikminCount++;
                         }
                     }
@@ -130,10 +152,9 @@ public class PlayerController : MonoBehaviour
             if(myHand.transform.childCount > 0)
             {
                 Vector3 mouseHit = MouseController.GetHit;
-                mouseHit.y = 0;
+                mouseHit.y = transform.position.y;
 
-                transform.rotation = Quaternion.Lerp(transform.rotation,
-        Quaternion.LookRotation(mouseHit), Time.deltaTime * 5f);
+                transform.LookAt(mouseHit);
 
                 state = PlayerState.ThrowReady;
             }
@@ -143,18 +164,7 @@ public class PlayerController : MonoBehaviour
         {
             if (myHand.transform.childCount > 0)
             {
-                Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
-
-                Vector3 mouseHit = MouseController.GetHit;
-
-                pik.FlyPikmin(mouseHit);
-
-                Vector3 Vo = Parabola.CalculateVelocity(mouseHit, myHand.transform.position, 1.5f);
-                pik.transform.rotation = Quaternion.identity;
-
-                Rigidbody rigid = pik.GetComponent<Rigidbody>();
-                rigid.isKinematic = false;
-                rigid.velocity = Vo;
+                throwPos = MouseController.GetHit;
 
                 state = PlayerState.ThrowAction;
             }
@@ -202,6 +212,27 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Animator
+    public void ThrowPik()
+    {
+        Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
+
+        pik.FlyPikmin(throwPos);
+
+        Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
+        pik.transform.rotation = Quaternion.identity;
+
+        Rigidbody rigid = pik.GetComponent<Rigidbody>();
+        rigid.isKinematic = false;
+        rigid.velocity = Vo;
+    }
+
+    public void ChangeState(PlayerState _state) { state = _state; }
+    #endregion
+
+    #region Static
     public static Transform GetPos { get; private set; }
+    #endregion
 }

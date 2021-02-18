@@ -5,7 +5,6 @@ using UnityEngine;
 public class particleScript : MonoBehaviour
 {
     public Vector3 speed;
-    bool isSizeUp = false;
     public Vector3 endSize;
     public float rSpeed = 4f;
     
