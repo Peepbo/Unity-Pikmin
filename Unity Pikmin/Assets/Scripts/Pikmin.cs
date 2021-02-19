@@ -8,8 +8,8 @@ public enum PikminState
 {
     STAY,
     FOLLOW,
-    FLY,
-    ATTACK
+    ATTACK,
+    FLY
 }
 
 public class Pikmin : MonoBehaviour
@@ -42,7 +42,9 @@ public class Pikmin : MonoBehaviour
 
     private void SetAction()
     {
-        stayAct = () => { };
+        stayAct = () => 
+        {
+        };
 
         followAct = () =>
         {
@@ -82,25 +84,28 @@ public class Pikmin : MonoBehaviour
     #region Action
     private void Move()
     {
-        float distance = Vector3.Magnitude(target.position - transform.position);
+        Vector3 angle = (target.position - transform.position).normalized;
+        agent.stoppingDistance = 0.75f;
+        agent.SetDestination(transform.position + angle);
 
-        if (distance < 1.5f)
-            isAvoid = true;
-        else
-            isAvoid = false;
+        //float distance = Vector3.Magnitude(target.position - transform.position);
 
-        if (!isAvoid)
-        {
-            agent.stoppingDistance = 2f;
-            agent.isStopped = false;
-            agent.SetDestination(target.position);
-        }
-        else
-        {
-            Vector3 angle = (transform.position - target.position).normalized;
-            agent.stoppingDistance = 0.75f;
-            agent.SetDestination(transform.position + angle);
-        }
+        //if (distance < 1.5f)
+        //    isAvoid = true;
+        //else
+        //    isAvoid = false;
+
+        //if (!isAvoid)
+        //{
+        //    agent.stoppingDistance = 2f;
+        //    agent.isStopped = false;
+        //    agent.SetDestination(target.position);
+        //}
+        //else
+        //{
+        //    Vector3 angle = (transform.position - target.position).normalized;
+        //    agent.stoppingDistance = 0.75f;
+        //    agent.SetDestination(transform.position + angle);
     }
 
     private void FlyCheck()
@@ -112,6 +117,8 @@ public class Pikmin : MonoBehaviour
             rigid.isKinematic = true;
             rigid.Sleep();
             agent.enabled = true;
+
+            ObjectCheck();
         }
 
         else
@@ -122,7 +129,7 @@ public class Pikmin : MonoBehaviour
                 checkTime += Time.deltaTime;
             }
 
-            if (checkTime > 1.3f)
+            if (checkTime > 2.5f)
             {
                 checkTime = 0;
                 state = PikminState.STAY;
@@ -130,6 +137,25 @@ public class Pikmin : MonoBehaviour
                 rigid.isKinematic = true;
                 rigid.Sleep();
                 agent.enabled = true;
+
+                ObjectCheck();
+            }
+        }
+    }
+
+    private void ObjectCheck()
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position, 3f);
+        foreach (var col in cols)
+        {
+            if (col.name.Equals("Sphere"))
+            {
+                RemovableObj objScript = col.GetComponent<RemovableObj>();
+                if (objScript.isFull()) return;
+
+                state = PikminState.FOLLOW;
+                ChangeTarget = objScript.Positioning(this);
+                return;
             }
         }
     }
@@ -173,6 +199,7 @@ public class Pikmin : MonoBehaviour
         rigid.useGravity = true;
         transform.parent = null;
         transform.LookAt(flyTarget);
+        GetComponent<CapsuleCollider>().enabled = true;
 
         StartCoroutine(RotateMe(1.5f));
     }
@@ -180,6 +207,15 @@ public class Pikmin : MonoBehaviour
     public Transform ChangeTarget
     {
         get { return target; }
-        set { target = value; }
+        set 
+        { 
+            target = value;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, 2f);
     }
 }

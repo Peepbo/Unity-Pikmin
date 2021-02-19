@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
 
     public PlayerState state;
     public List<Pikmin> pikmins = new List<Pikmin>();
+    public List<RemovableObj> objects = new List<RemovableObj>();
+
     public int myPikminCount = 0;
     public GameObject myHand;
 
@@ -33,10 +35,16 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         var obj = GameObject.FindGameObjectsWithTag("Pikmin");
-        int len = obj.Length;
-        for(int i = 0; i < len; i++)
+
+        foreach(var ob in obj)
         {
-            pikmins.Add(obj[i].GetComponent<Pikmin>());
+            pikmins.Add(ob.GetComponent<Pikmin>());
+        }
+
+        obj = GameObject.FindGameObjectsWithTag("Object");
+        foreach (var ob in obj)
+        {
+            objects.Add(ob.GetComponent<RemovableObj>());
         }
 
         SetAction();
@@ -132,12 +140,24 @@ public class PlayerController : MonoBehaviour
                 {
                     if (Vector3.Distance(pik.transform.position, _point) < _radius)
                     {
-                        if (pik.state == PikminState.STAY)
+                        if (pik.state < (PikminState)3)
                         {
                             pik.ChangeTarget = transform;
                             pik.state = PikminState.FOLLOW;
 
                             myPikminCount++;
+                        }
+                        //else if(pik.state == )
+                    }
+                }
+
+                foreach(RemovableObj obj in objects)
+                {
+                    if (Vector3.Distance(obj.transform.position, _point) < _radius)
+                    {
+                        if(obj.inNum > 0)
+                        {
+                            obj.StopCarrying();
                         }
                     }
                 }
@@ -167,6 +187,7 @@ public class PlayerController : MonoBehaviour
                 throwPos = MouseController.GetHit;
 
                 state = PlayerState.ThrowAction;
+                myPikminCount--;
             }
         }
     }
@@ -201,6 +222,7 @@ public class PlayerController : MonoBehaviour
 
             if (choose != null)
             {
+                choose.GetComponent<CapsuleCollider>().enabled = false;
                 choose.transform.position = myHand.transform.position;
                 choose.transform.parent = myHand.transform;
                 choose.transform.rotation = myHand.transform.rotation;
@@ -219,6 +241,7 @@ public class PlayerController : MonoBehaviour
     {
         Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
 
+        throwPos.y = 0;
         pik.FlyPikmin(throwPos);
 
         Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
