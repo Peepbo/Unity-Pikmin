@@ -14,10 +14,14 @@ public enum PikminState
 
 public class Pikmin : MonoBehaviour
 {
-    public bool isAvoid = false;
-    public PikminState state;
+    public RemovableObj objScript;
 
+    public PikminState state;
     public Vector3 flyTarget;
+    public CapsuleCollider collider;
+
+    public bool isDelivery;
+    private bool isArrive;
 
     private Transform target;
     private NavMeshAgent agent;
@@ -28,6 +32,7 @@ public class Pikmin : MonoBehaviour
 
     private void Awake()
     {
+        collider = GetComponent<CapsuleCollider>();
         agent = GetComponent<NavMeshAgent>();
         rigid = GetComponent<Rigidbody>();
         state = PikminState.STAY;
@@ -70,7 +75,16 @@ public class Pikmin : MonoBehaviour
                 stayAct();
                 break;
             case PikminState.FOLLOW:
-                followAct();
+                if (agent.enabled == false) return;
+
+                if (!isDelivery)
+                {
+                    followAct();
+                }
+                else
+                {
+                    CheckMove();
+                }
                 break;
             case PikminState.FLY:
                 flyAct();
@@ -87,25 +101,38 @@ public class Pikmin : MonoBehaviour
         Vector3 angle = (target.position - transform.position).normalized;
         agent.stoppingDistance = 0.75f;
         agent.SetDestination(transform.position + angle);
+    }
 
-        //float distance = Vector3.Magnitude(target.position - transform.position);
+    private void CheckMove()
+    {
+        float distance = Vector3.Magnitude(target.position - transform.position);
 
-        //if (distance < 1.5f)
-        //    isAvoid = true;
-        //else
-        //    isAvoid = false;
+        if (distance < 0.3f)
+        {
+            if(objScript != null)
+            {
+                if(!isArrive) StartCoroutine(ArriveTime());
+            }
+        }
 
-        //if (!isAvoid)
-        //{
-        //    agent.stoppingDistance = 2f;
-        //    agent.isStopped = false;
-        //    agent.SetDestination(target.position);
-        //}
-        //else
-        //{
-        //    Vector3 angle = (transform.position - target.position).normalized;
-        //    agent.stoppingDistance = 0.75f;
-        //    agent.SetDestination(transform.position + angle);
+        if(objScript != null)
+        {
+            agent.stoppingDistance = 0.2f;
+            agent.SetDestination(target.position);
+        }
+    }
+
+    IEnumerator ArriveTime()
+    {
+        isArrive = true;
+        yield return new WaitForSeconds(1.0f);
+        objScript.arriveNum++;
+        objScript = null;
+        Vector3 goal = target.position;
+        goal.y = transform.position.y;
+        transform.position = goal;
+        agent.enabled = false;
+        isArrive = false;
     }
 
     private void FlyCheck()
@@ -150,11 +177,15 @@ public class Pikmin : MonoBehaviour
         {
             if (col.name.Equals("Sphere"))
             {
-                RemovableObj objScript = col.GetComponent<RemovableObj>();
+                objScript = col.GetComponent<RemovableObj>();
                 if (objScript.isFull()) return;
 
                 state = PikminState.FOLLOW;
+
                 ChangeTarget = objScript.Positioning(this);
+                transform.parent = ChangeTarget;
+                isDelivery = true;
+                collider.enabled = false;
                 return;
             }
         }
@@ -210,6 +241,9 @@ public class Pikmin : MonoBehaviour
         set 
         { 
             target = value;
+            agent.enabled = true;
+            isDelivery = false;
+            collider.enabled = true;
         }
     }
 

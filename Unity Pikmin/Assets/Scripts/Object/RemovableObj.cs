@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AI;
 using UnityEngine;
 using UnityEditor;
 
 public class RemovableObj : MonoBehaviour
 {
+    bool isArrive;
+
     public GameObject colPrefab;
 
     [Header("SETTINGS")]
@@ -14,12 +17,25 @@ public class RemovableObj : MonoBehaviour
 
     [Header("INFO")]
     public int inNum;
+    public int arriveNum;
 
     [Header("GIZMO")]
     public Color gizmoColor;
     public float gizmoSize;
 
+    private NavMeshAgent agent;
+
+    private TextMesh textMesh;
+
     Stack<Pikmin> pikminStack = new Stack<Pikmin>();
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        agent.enabled = false;
+        textMesh = transform.GetComponentInChildren<TextMesh>();
+        textMesh.text = needNum.ToString();
+    }
 
     private void Start()
     {
@@ -40,10 +56,23 @@ public class RemovableObj : MonoBehaviour
 
     private void Update()
     {
-        if(inNum > 0)
-        {
+        if (isArrive) return;
 
+        if (arriveNum == needNum)
+        {
+            agent.enabled = true;
+
+            Vector3 des = Spaceship.pos;
+            des.y = transform.position.y;
+            agent.SetDestination(des);
+            if (Vector3.Distance(transform.position, des) < 0.1f)
+            {
+                StopCarrying();
+                agent.enabled = false;
+                isArrive = true;
+            }
         }
+        else agent.enabled = false;
     }
 
     public bool isFull() { return inNum == needNum ? true : false; }
@@ -51,17 +80,24 @@ public class RemovableObj : MonoBehaviour
     public Transform Positioning(Pikmin pikmin)
     {
         inNum++;
+        textMesh.text = needNum.ToString() + "\n─\n" + inNum.ToString();
         pikminStack.Push(pikmin);
-        return transform.GetChild(inNum - 1);
+        return transform.GetChild(inNum);
     }
 
     public void StopCarrying() //물체에 좌클릭이 충돌했을 때 실행
     {
+        arriveNum = 0;
         while (inNum > 0)
         {
             inNum--;
-            pikminStack.Pop();
+            textMesh.text = needNum.ToString() + "─" + inNum.ToString();
+            Pikmin pk = pikminStack.Pop();
+            pk.transform.parent = null;
+            pk.objScript = null;
+            pk.isDelivery = false;
         }
+        textMesh.text = needNum.ToString();
     }
 
     private void OnDrawGizmos()
