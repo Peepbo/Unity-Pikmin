@@ -147,7 +147,6 @@ public class PlayerController : MonoBehaviour
 
                             myPikminCount++;
                         }
-                        //else if(pik.state == )
                     }
                 }
 

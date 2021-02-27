@@ -11,8 +11,10 @@ public class RemovableObj : MonoBehaviour
     public GameObject colPrefab;
 
     [Header("SETTINGS")]
+    public Transform target;
     public float radius;
     public float radius2;
+    public float downValue;
     public int needNum;
 
     [Header("INFO")]
@@ -47,7 +49,7 @@ public class RemovableObj : MonoBehaviour
         for (int i = 0; i < needNum; i++)
         {
             colObj[i] = Instantiate(colPrefab, transform);
-            colObj[i].transform.position += Vector3.down;
+            colObj[i].transform.position += Vector3.down * downValue;
 
             angle = i * PI2 / needNum;
             colObj[i].transform.position += new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
@@ -56,7 +58,25 @@ public class RemovableObj : MonoBehaviour
 
     private void Update()
     {
-        if (isArrive) return;
+        if (isArrive)
+        {
+            Vector3 ePos = Spaceship.pos;
+            ePos.y += 5;
+
+            transform.position = Vector3.Lerp(transform.position, ePos, Time.deltaTime * 2f);
+            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime);
+
+            if(transform.localScale.magnitude < 0.45f)
+            {
+                MaterialOffset.disActive = true;
+                target.GetComponent<Spaceship>().turnOff();
+                gameObject.SetActive(false);
+
+            }
+            return;
+        }
+
+        transform.GetChild(0).rotation = Camera.main.transform.rotation;
 
         if (arriveNum == needNum)
         {
@@ -70,6 +90,10 @@ public class RemovableObj : MonoBehaviour
                 StopCarrying();
                 agent.enabled = false;
                 isArrive = true;
+                transform.GetChild(0).gameObject.SetActive(false);
+
+                target.GetComponent<Spaceship>().turnOn();
+                target.GetComponent<Spaceship>().Smoke();
             }
         }
         else agent.enabled = false;
@@ -93,9 +117,7 @@ public class RemovableObj : MonoBehaviour
             inNum--;
             textMesh.text = needNum.ToString() + "─" + inNum.ToString();
             Pikmin pk = pikminStack.Pop();
-            pk.transform.parent = null;
-            pk.objScript = null;
-            pk.isDelivery = false;
+            pk.Init();
         }
         textMesh.text = needNum.ToString();
     }
@@ -103,7 +125,7 @@ public class RemovableObj : MonoBehaviour
     private void OnDrawGizmos()
     {
         Handles.color = Color.yellow;
-        Handles.DrawWireDisc(transform.position+Vector3.down, Vector3.down, radius);
+        Handles.DrawWireDisc(transform.position+Vector3.down * downValue, Vector3.down, radius);
 
         Gizmos.color = gizmoColor;
 
@@ -113,7 +135,7 @@ public class RemovableObj : MonoBehaviour
         for(int i = 0; i < needNum; i++)
         {
             angle = i * PI2 / needNum;
-            Gizmos.DrawWireSphere(transform.position + Vector3.down + new Vector3(Mathf.Cos(angle) * radius,
+            Gizmos.DrawWireSphere(transform.position + (Vector3.down * downValue) + new Vector3(Mathf.Cos(angle) * radius,
     0, Mathf.Sin(angle) * radius), gizmoSize);
         }
 

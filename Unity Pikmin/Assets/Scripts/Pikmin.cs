@@ -45,6 +45,13 @@ public class Pikmin : MonoBehaviour
         SetAction();
     }
 
+    public void Init()
+    {
+        transform.parent = null;
+        objScript = null;
+        isDelivery = false;
+    }
+
     private void SetAction()
     {
         stayAct = () => 
