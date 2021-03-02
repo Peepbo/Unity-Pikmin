@@ -72,8 +72,10 @@ public class PlayerController : MonoBehaviour
 
         throw0Act = () =>
         {
-            anim.SetBool("RightClick", true);
+            state = PlayerState.ThrowReady;
             RightButton();
+            anim.SetBool("RightClick", true);
+            anim.SetFloat("MoveSpeed", 0);
         };
 
         throw1Act = () =>
@@ -142,6 +144,8 @@ public class PlayerController : MonoBehaviour
                     {
                         if (pik.state < (PikminState)3)
                         {
+                            if (pik.ChangeTarget == transform && pik.state == PikminState.FOLLOW) return;
+
                             pik.ChangeTarget = transform;
                             pik.state = PikminState.FOLLOW;
 
@@ -166,6 +170,8 @@ public class PlayerController : MonoBehaviour
 
     private void RightButton()
     {
+        if (state == PlayerState.Walk) return;
+
         if (Input.GetMouseButton(1))
         {
             if(myHand.transform.childCount > 0)
@@ -186,7 +192,6 @@ public class PlayerController : MonoBehaviour
                 throwPos = MouseController.GetHit;
 
                 state = PlayerState.ThrowAction;
-                myPikminCount--;
             }
         }
     }

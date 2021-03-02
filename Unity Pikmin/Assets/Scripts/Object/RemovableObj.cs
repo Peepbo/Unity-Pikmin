@@ -6,7 +6,7 @@ using UnityEditor;
 
 public class RemovableObj : MonoBehaviour
 {
-    bool isArrive;
+    private bool isArrive;
 
     public GameObject colPrefab;
 
@@ -26,17 +26,21 @@ public class RemovableObj : MonoBehaviour
     public float gizmoSize;
 
     private NavMeshAgent agent;
-
-    private TextMesh textMesh;
-
-    Stack<Pikmin> pikminStack = new Stack<Pikmin>();
+    private TextSetting textSetting;
+    private Stack<Pikmin> pikminStack = new Stack<Pikmin>();
+    private Material mat;
+    private Color emissionColor = new Color(0.6F, 0, 0, 3F);
+    private Spaceship spaceship;
 
     private void Awake()
     {
+        mat = GetComponent<Renderer>().material;
         agent = GetComponent<NavMeshAgent>();
         agent.enabled = false;
-        textMesh = transform.GetComponentInChildren<TextMesh>();
-        textMesh.text = needNum.ToString();
+        textSetting = transform.GetChild(0).GetComponent<TextSetting>();
+        spaceship = target.GetComponent<Spaceship>();
+
+        mat.EnableKeyword("_EMISSION");
     }
 
     private void Start()
@@ -58,27 +62,33 @@ public class RemovableObj : MonoBehaviour
 
     private void Update()
     {
+        Arrive();
+
+        Move();
+    }
+
+    public void Arrive()
+    {
         if (isArrive)
         {
-            Vector3 ePos = Spaceship.pos;
-            ePos.y += 5;
+            mat.SetColor("_EmissionColor", Color.Lerp(mat.GetColor("_EmissionColor"), emissionColor, Time.deltaTime * 7f));
 
-            transform.position = Vector3.Lerp(transform.position, ePos, Time.deltaTime * 2f);
-            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, Spaceship.pos + (Vector3.up * 5), Time.deltaTime * 2f);
+            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime * 0.9F);
 
-            if(transform.localScale.magnitude < 0.45f)
+            if (transform.localScale.magnitude < 0.45f)
             {
                 MaterialOffset.disActive = true;
-                target.GetComponent<Spaceship>().turnOff();
+                spaceship.turnOff();
                 gameObject.SetActive(false);
-
             }
             return;
         }
+    }
 
-        transform.GetChild(0).rotation = Camera.main.transform.rotation;
-
-        if (arriveNum == needNum)
+    public void Move()
+    {
+        if (isFull())
         {
             agent.enabled = true;
 
@@ -92,8 +102,8 @@ public class RemovableObj : MonoBehaviour
                 isArrive = true;
                 transform.GetChild(0).gameObject.SetActive(false);
 
-                target.GetComponent<Spaceship>().turnOn();
-                target.GetComponent<Spaceship>().Smoke();
+                spaceship.turnOn();
+                spaceship.Smoke();
             }
         }
         else agent.enabled = false;
@@ -104,7 +114,7 @@ public class RemovableObj : MonoBehaviour
     public Transform Positioning(Pikmin pikmin)
     {
         inNum++;
-        textMesh.text = needNum.ToString() + "\n─\n" + inNum.ToString();
+        textSetting.ChangeText(needNum.ToString() + "\n─\n" + inNum.ToString());
         pikminStack.Push(pikmin);
         return transform.GetChild(inNum);
     }
@@ -115,11 +125,11 @@ public class RemovableObj : MonoBehaviour
         while (inNum > 0)
         {
             inNum--;
-            textMesh.text = needNum.ToString() + "─" + inNum.ToString();
             Pikmin pk = pikminStack.Pop();
             pk.Init();
         }
-        textMesh.text = needNum.ToString();
+
+        textSetting.ChangeText(needNum.ToString() + "─" + inNum.ToString());
     }
 
     private void OnDrawGizmos()
