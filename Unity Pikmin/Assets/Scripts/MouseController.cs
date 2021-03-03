@@ -63,6 +63,20 @@ public class MouseController : MonoBehaviour
         }
     }
 
+    public static RemovableObj GetRemovableHit
+    {
+        get
+        {
+            ray = cam.ScreenPointToRay(Input.mousePosition);
+            if(Physics.Raycast(ray, out hit))
+            {
+                if(hit.transform.CompareTag("Object")) 
+                    return hit.transform.GetComponent<RemovableObj>();
+            }
+            return null;
+        }
+    }
+
     public static float GetRadius { get; private set; }
 
     void Visualize(Vector3 origin ,Vector3 vo)

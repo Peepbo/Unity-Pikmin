@@ -58,6 +58,8 @@ public class RemovableObj : MonoBehaviour
             angle = i * PI2 / needNum;
             colObj[i].transform.position += new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
         }
+
+        textSetting.ChangeText(needNum.ToString());
     }
 
     private void Update()
@@ -67,7 +69,7 @@ public class RemovableObj : MonoBehaviour
         Move();
     }
 
-    public void Arrive()
+    private void Arrive()
     {
         if (isArrive)
         {
@@ -79,16 +81,17 @@ public class RemovableObj : MonoBehaviour
             if (transform.localScale.magnitude < 0.45f)
             {
                 MaterialOffset.disActive = true;
-                spaceship.turnOff();
                 gameObject.SetActive(false);
+
+                spaceship.StopEffect();
             }
             return;
         }
     }
 
-    public void Move()
+    private void Move()
     {
-        if (isFull())
+        if (arriveNum == needNum)
         {
             agent.enabled = true;
 
@@ -102,11 +105,17 @@ public class RemovableObj : MonoBehaviour
                 isArrive = true;
                 transform.GetChild(0).gameObject.SetActive(false);
 
-                spaceship.turnOn();
-                spaceship.Smoke();
+                spaceship.PlayEffect();
             }
         }
         else agent.enabled = false;
+    }
+
+    public Vector3 GetArrivePoint()
+    {
+        Debug.Log(inNum);
+        if (isFull()) return Vector3.zero;
+        return transform.GetChild(1 + inNum).position;
     }
 
     public bool isFull() { return inNum == needNum ? true : false; }
@@ -129,7 +138,7 @@ public class RemovableObj : MonoBehaviour
             pk.Init();
         }
 
-        textSetting.ChangeText(needNum.ToString() + "─" + inNum.ToString());
+        textSetting.ChangeText(needNum.ToString() + "\n─\n" + inNum.ToString());
     }
 
     private void OnDrawGizmos()
@@ -148,7 +157,5 @@ public class RemovableObj : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position + (Vector3.down * downValue) + new Vector3(Mathf.Cos(angle) * radius,
     0, Mathf.Sin(angle) * radius), gizmoSize);
         }
-
-        Gizmos.DrawSphere(transform.position, radius2);
     }
 }

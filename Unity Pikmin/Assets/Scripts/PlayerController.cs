@@ -21,7 +21,8 @@ public class PlayerController : MonoBehaviour
     public GameObject myHand;
 
     private Animator anim;
-    private Vector3 throwPos;
+    private Vector3 throwPos;//v1.0
+    public RemovableObj removableObj;//v1.1
 
     Action idleAct, walkAct, throw0Act, throw1Act;
      
@@ -146,21 +147,17 @@ public class PlayerController : MonoBehaviour
                         {
                             if (pik.ChangeTarget == transform && pik.state == PikminState.FOLLOW) return;
 
+                            if(pik.isDelivery)//배달중인 피크민
+                            {
+                                pik.objScript.arriveNum--;
+                                pik.objScript.inNum--;
+                                pik.Init();
+                            }
+
                             pik.ChangeTarget = transform;
                             pik.state = PikminState.FOLLOW;
 
                             myPikminCount++;
-                        }
-                    }
-                }
-
-                foreach(RemovableObj obj in objects)
-                {
-                    if (Vector3.Distance(obj.transform.position, _point) < _radius)
-                    {
-                        if(obj.inNum > 0)
-                        {
-                            obj.StopCarrying();
                         }
                     }
                 }
@@ -190,6 +187,7 @@ public class PlayerController : MonoBehaviour
             if (myHand.transform.childCount > 0)
             {
                 throwPos = MouseController.GetHit;
+                removableObj = MouseController.GetRemovableHit;
 
                 state = PlayerState.ThrowAction;
             }
@@ -245,15 +243,33 @@ public class PlayerController : MonoBehaviour
     {
         Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
 
-        throwPos.y = 0;
-        pik.FlyPikmin(throwPos);
+        if (removableObj == null)
+        {
+            throwPos.y = 0;
+            pik.FlyPikmin(throwPos);
+            Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
+            pik.transform.rotation = Quaternion.identity;
 
-        Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
-        pik.transform.rotation = Quaternion.identity;
+            Rigidbody rigid = pik.GetComponent<Rigidbody>();
+            rigid.isKinematic = false;
+            rigid.velocity = Vo;
+        }
+        else
+        {
+            Vector3 arrive = removableObj.GetArrivePoint();
+            
+            arrive.y = 0;
+            pik.FlyPikmin(arrive);
+            pik.objScript = removableObj;
+            Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
+            pik.transform.rotation = Quaternion.identity;
 
-        Rigidbody rigid = pik.GetComponent<Rigidbody>();
-        rigid.isKinematic = false;
-        rigid.velocity = Vo;
+            Rigidbody rigid = pik.GetComponent<Rigidbody>();
+            rigid.isKinematic = false;
+            rigid.velocity = Vo;
+
+            removableObj = null;
+        }
     }
 
     public void ChangeState(PlayerState _state) { state = _state; }

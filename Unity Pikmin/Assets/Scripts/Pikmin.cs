@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.AI;
 using UnityEngine;
+using UnityEditor;
 using System;
 
 public enum PikminState
@@ -132,9 +133,9 @@ public class Pikmin : MonoBehaviour
     IEnumerator ArriveTime()
     {
         isArrive = true;
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(1.5f);
         objScript.arriveNum++;
-        objScript = null;
+        //objScript = null;
         Vector3 goal = target.position;
         goal.y = transform.position.y;
         transform.position = goal;
@@ -152,7 +153,8 @@ public class Pikmin : MonoBehaviour
             rigid.Sleep();
             agent.enabled = true;
 
-            ObjectCheck();
+            //ObjectCheck();
+            FindObject(objScript);
         }
 
         else
@@ -163,7 +165,7 @@ public class Pikmin : MonoBehaviour
                 checkTime += Time.deltaTime;
             }
 
-            if (checkTime > 2.5f)
+            if (checkTime > 1.0f)
             {
                 checkTime = 0;
                 state = PikminState.STAY;
@@ -172,7 +174,8 @@ public class Pikmin : MonoBehaviour
                 rigid.Sleep();
                 agent.enabled = true;
 
-                ObjectCheck();
+                //ObjectCheck();
+                FindObject(objScript);
             }
         }
     }
@@ -182,7 +185,7 @@ public class Pikmin : MonoBehaviour
         Collider[] cols = Physics.OverlapSphere(transform.position, 3f);
         foreach (var col in cols)
         {
-            if (col.name.Equals("Sphere"))
+            if (col.CompareTag("Object"))
             {
                 objScript = col.GetComponent<RemovableObj>();
                 if (objScript.isFull()) return;
@@ -196,6 +199,19 @@ public class Pikmin : MonoBehaviour
                 return;
             }
         }
+    }
+
+    public void FindObject(RemovableObj script)
+    {
+        objScript = script;
+        if (objScript.isFull()) return;
+
+        state = PikminState.FOLLOW;
+
+        ChangeTarget = objScript.Positioning(this);
+        transform.parent = ChangeTarget;
+        isDelivery = true;
+        collider.enabled = false;
     }
     #endregion
 
@@ -237,7 +253,8 @@ public class Pikmin : MonoBehaviour
         rigid.useGravity = true;
         transform.parent = null;
         transform.LookAt(flyTarget);
-        GetComponent<CapsuleCollider>().enabled = true;
+        //collider
+        //GetComponent<CapsuleCollider>().enabled = true;
 
         StartCoroutine(RotateMe(1.5f));
     }
@@ -256,7 +273,7 @@ public class Pikmin : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, 2f);
+        Handles.color = Color.red;
+        Handles.DrawWireDisc(transform.position, transform.up, 2f);
     }
 }

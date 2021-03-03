@@ -33,19 +33,25 @@ public class Spaceship : MonoBehaviour
         transform.parent.GetComponent<Animator>().SetTrigger("Big");
     }
 
-    public void Smoke()
+    private void Smoke()
     {
         StartCoroutine(delayActive(1.0f, smoke));
     }
 
-    public void turnOn()
+    private void TurnOn()
     {
         lightVulume.SetActive(true);
         var em = particle.emission;
         em.enabled = true;
     }
 
-    public void turnOff()
+    public void PlayEffect()
+    {
+        TurnOn();
+        Smoke();
+    }
+
+    public void StopEffect()
     {
         var em = particle.emission;
         em.enabled = false;
