@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ICollider
 {
     public enum PlayerState
     {
@@ -23,6 +23,9 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private Vector3 throwPos;//v1.0
     public RemovableObj removableObj;//v1.1
+
+    //private float horizontal, vertical;
+    private Vector3 direction;
 
     Action idleAct, walkAct, throw0Act, throw1Act;
      
@@ -86,7 +89,10 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update() => Animation();
+    private void Update()
+    {
+        Animation();
+    }
 
     private void Animation()
     {
@@ -115,15 +121,16 @@ public class PlayerController : MonoBehaviour
 
         Vector3 pos = transform.position;
 
+        direction = new Vector3(h, 0, v);
         if (Mathf.Abs(h) + (Mathf.Abs(v)) > 0f)
         {
             state = PlayerState.Walk;
 
-            transform.rotation = Quaternion.Lerp(transform.rotation, 
-                Quaternion.LookRotation(new Vector3( h, 0, v)), Time.deltaTime*5f);
+            transform.rotation = Quaternion.LookRotation(direction);
         }
         else state = PlayerState.Idle;
 
+        if (Collision()) return;
         pos.x += h * Time.deltaTime * 5f;
         pos.z += v * Time.deltaTime * 5f;
 
@@ -224,14 +231,7 @@ public class PlayerController : MonoBehaviour
 
             if (choose != null)
             {
-                choose.GetComponent<CapsuleCollider>().enabled = false;
-                choose.transform.position = myHand.transform.position;
-                choose.transform.parent = myHand.transform;
-                choose.transform.rotation = myHand.transform.rotation;
-
-                choose.state = PikminState.ATTACK;
-                choose.PickMe();
-                //choose.
+                choose.PickMe(myHand.transform);
                 myPikminCount--;
             }
         }
@@ -274,6 +274,43 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeState(PlayerState _state) { state = _state; }
     #endregion
+
+    //collider
+    private bool Collision()
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
+        foreach(var col in cols)
+        {
+            if (col.CompareTag("Object")) return true;
+
+            if(col.CompareTag("Pikmin"))
+            {
+                ICollider colObj = col.GetComponent<ICollider>();
+
+                Vector3 a = transform.position;
+                a.y = 0;
+                Vector3 b = col.transform.position;
+                b.y = 0;
+                Vector3 v = a - b;
+                colObj.PushedOut(-(v.normalized) * 5/v.magnitude);
+            }
+        }
+        return false;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan;
+
+        Gizmos.DrawWireSphere(transform.position + Vector3.up, 0.5f);
+        Gizmos.DrawWireSphere(transform.position, 0.5f);
+        Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
+    }
+
+    public void PushedOut(Vector3 direction)
+    {
+        transform.Translate(direction * Time.deltaTime);
+    }
 
     #region Static
     public static Transform GetPos { get; private set; }

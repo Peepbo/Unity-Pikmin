@@ -13,13 +13,13 @@ public enum PikminState
     FLY
 }
 
-public class Pikmin : MonoBehaviour
+public class Pikmin : MonoBehaviour, ICollider
 {
     public RemovableObj objScript;
 
     public PikminState state;
     public Vector3 flyTarget;
-    public CapsuleCollider collider;
+    public CapsuleCollider col;
 
     public bool isDelivery;
     private bool isArrive;
@@ -33,7 +33,7 @@ public class Pikmin : MonoBehaviour
 
     private void Awake()
     {
-        collider = GetComponent<CapsuleCollider>();
+        col = GetComponent<CapsuleCollider>();
         agent = GetComponent<NavMeshAgent>();
         rigid = GetComponent<Rigidbody>();
         state = PikminState.STAY;
@@ -55,7 +55,7 @@ public class Pikmin : MonoBehaviour
 
     private void SetAction()
     {
-        stayAct = () => 
+        stayAct = () =>
         {
         };
 
@@ -117,13 +117,13 @@ public class Pikmin : MonoBehaviour
 
         if (distance < 0.3f)
         {
-            if(objScript != null)
+            if (objScript != null)
             {
-                if(!isArrive) StartCoroutine(ArriveTime());
+                if (!isArrive) StartCoroutine(ArriveTime());
             }
         }
 
-        if(objScript != null)
+        if (objScript != null)
         {
             agent.stoppingDistance = 0.2f;
             agent.SetDestination(target.position);
@@ -135,7 +135,6 @@ public class Pikmin : MonoBehaviour
         isArrive = true;
         yield return new WaitForSeconds(1.5f);
         objScript.arriveNum++;
-        //objScript = null;
         Vector3 goal = target.position;
         goal.y = transform.position.y;
         transform.position = goal;
@@ -180,29 +179,9 @@ public class Pikmin : MonoBehaviour
         }
     }
 
-    private void ObjectCheck()
-    {
-        Collider[] cols = Physics.OverlapSphere(transform.position, 3f);
-        foreach (var col in cols)
-        {
-            if (col.CompareTag("Object"))
-            {
-                objScript = col.GetComponent<RemovableObj>();
-                if (objScript.isFull()) return;
-
-                state = PikminState.FOLLOW;
-
-                ChangeTarget = objScript.Positioning(this);
-                transform.parent = ChangeTarget;
-                isDelivery = true;
-                collider.enabled = false;
-                return;
-            }
-        }
-    }
-
     public void FindObject(RemovableObj script)
     {
+        if (script == null) return;
         objScript = script;
         if (objScript.isFull()) return;
 
@@ -211,7 +190,7 @@ public class Pikmin : MonoBehaviour
         ChangeTarget = objScript.Positioning(this);
         transform.parent = ChangeTarget;
         isDelivery = true;
-        collider.enabled = false;
+        col.enabled = false;
     }
     #endregion
 
@@ -239,8 +218,13 @@ public class Pikmin : MonoBehaviour
         }
     }
 
-    public void PickMe() 
-    { 
+    public void PickMe(Transform parent)
+    {
+        GetComponent<CapsuleCollider>().enabled = false;
+        transform.parent = parent;
+        transform.position = parent.position;
+        transform.rotation = Quaternion.identity;
+        state = PikminState.ATTACK;
         rigid.useGravity = false;
         agent.enabled = false;
     }
@@ -253,8 +237,6 @@ public class Pikmin : MonoBehaviour
         rigid.useGravity = true;
         transform.parent = null;
         transform.LookAt(flyTarget);
-        //collider
-        //GetComponent<CapsuleCollider>().enabled = true;
 
         StartCoroutine(RotateMe(1.5f));
     }
@@ -262,18 +244,25 @@ public class Pikmin : MonoBehaviour
     public Transform ChangeTarget
     {
         get { return target; }
-        set 
-        { 
+        set
+        {
             target = value;
             agent.enabled = true;
             isDelivery = false;
-            collider.enabled = true;
+            col.enabled = true;
         }
     }
+
+
 
     private void OnDrawGizmos()
     {
         Handles.color = Color.red;
         Handles.DrawWireDisc(transform.position, transform.up, 2f);
+    }
+
+    public void PushedOut(Vector3 direction)
+    {
+        transform.Translate(direction * Time.deltaTime);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using UnityEngine;
 using UnityEditor;
 
-public class RemovableObj : MonoBehaviour
+public class RemovableObj : MonoBehaviour, ICollider
 {
     private bool isArrive;
 
@@ -16,6 +16,7 @@ public class RemovableObj : MonoBehaviour
     public float radius2;
     public float downValue;
     public int needNum;
+    public int speed;
 
     [Header("INFO")]
     public int inNum;
@@ -32,10 +33,13 @@ public class RemovableObj : MonoBehaviour
     private Color emissionColor = new Color(0.6F, 0, 0, 3F);
     private Spaceship spaceship;
 
+    bool stop = false;
+
     private void Awake()
     {
         mat = GetComponent<Renderer>().material;
         agent = GetComponent<NavMeshAgent>();
+        agent.speed = speed;
         agent.enabled = false;
         textSetting = transform.GetChild(0).GetComponent<TextSetting>();
         spaceship = target.GetComponent<Spaceship>();
@@ -91,6 +95,21 @@ public class RemovableObj : MonoBehaviour
 
     private void Move()
     {
+        if(arriveNum == needNum)
+        {
+            //COL
+            Collider[] cols = Physics.OverlapSphere(transform.position, radius);
+            foreach (Collider col in cols)
+            {
+                if (col.CompareTag("Player"))
+                {
+                    agent.enabled = false;
+                    return;
+                }
+            }
+        }
+
+
         if (arriveNum == needNum)
         {
             agent.enabled = true;
@@ -115,7 +134,7 @@ public class RemovableObj : MonoBehaviour
     {
         Debug.Log(inNum);
         if (isFull()) return Vector3.zero;
-        return transform.GetChild(1 + inNum).position;
+        return transform.GetChild(2 + inNum).position;
     }
 
     public bool isFull() { return inNum == needNum ? true : false; }
@@ -125,7 +144,7 @@ public class RemovableObj : MonoBehaviour
         inNum++;
         textSetting.ChangeText(needNum.ToString() + "\n─\n" + inNum.ToString());
         pikminStack.Push(pikmin);
-        return transform.GetChild(inNum);
+        return transform.GetChild(inNum + 1);
     }
 
     public void StopCarrying() //물체에 좌클릭이 충돌했을 때 실행
@@ -157,5 +176,10 @@ public class RemovableObj : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position + (Vector3.down * downValue) + new Vector3(Mathf.Cos(angle) * radius,
     0, Mathf.Sin(angle) * radius), gizmoSize);
         }
+    }
+
+    public void PushedOut(Vector3 direction)
+    {
+        //throw new System.NotImplementedException();
     }
 }
