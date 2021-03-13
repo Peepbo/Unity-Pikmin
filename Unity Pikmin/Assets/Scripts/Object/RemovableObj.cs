@@ -141,7 +141,9 @@ public class RemovableObj : MonoBehaviour, ICollider
     {
         Debug.Log(inNum);
         if (isFull()) return Vector3.zero;
-        return transform.GetChild(2 + inNum + num).position;
+        Debug.Log(transform.GetChild(2 + num).name);
+        Debug.Log(2 + num);
+        return transform.GetChild(2 + num).position;
     }
 
     public bool isFull() { return inNum == needNum ? true : false; }

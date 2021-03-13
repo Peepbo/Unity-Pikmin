@@ -208,7 +208,7 @@ public class PlayerController : MonoBehaviour, ICollider
 
         foreach (Pikmin pik in pikmins)
         {
-            if (pik.state == PikminState.FOLLOW)
+            if (!pik.isDelivery && pik.state == PikminState.FOLLOW)
             {
                 float cmp = (transform.position - pik.transform.position).magnitude;
                 choose = pik;
@@ -279,31 +279,65 @@ public class PlayerController : MonoBehaviour, ICollider
         }
         else
         {
-            int count = myPikminCount;
-            for(int i = 0; i < count; i++)
-            {
-                Debug.Log(i);
+            StartCoroutine(hi(removableObj.needNum - removableObj.inNum));
+            //int count = myPikminCount;
+            //Debug.Log(count);
 
-                Vector3 arrive = removableObj.GetArrivePoint(i);
+            //for(int i = 0; i <= count; i++)
+            //{
+            //    Debug.Log(i);
 
-                arrive.y = 0;
-                pik.FlyPikmin(arrive);
-                pik.objScript = removableObj;
-                Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
-                pik.transform.rotation = Quaternion.identity;
+            //    Vector3 arrive = removableObj.GetArrivePoint(i);
 
-                Rigidbody rigid = pik.GetComponent<Rigidbody>();
-                rigid.isKinematic = false;
-                rigid.velocity = Vo;
+            //    arrive.y = 0;
+            //    pik.FlyPikmin(arrive);
+            //    pik.objScript = removableObj;
+            //    Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
+            //    pik.transform.rotation = Quaternion.identity;
 
-                if (myHand.transform.childCount == 0)
-                {
-                    CatchPik();
-                    pik = myHand.GetComponentInChildren<Pikmin>();
-                }
-            }
-            removableObj = null;
+            //    Rigidbody rigid = pik.GetComponent<Rigidbody>();
+            //    rigid.isKinematic = false;
+            //    rigid.velocity = Vo;
+
+            //    CatchPik();
+            //    pik = myHand.GetComponentInChildren<Pikmin>();
+            //}
+            //removableObj = null;
         }
+    }
+
+    IEnumerator hi(int maxPikmin)
+    {
+        int i = 0;
+        while (i < maxPikmin)
+        {
+            Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
+
+            Vector3 arrive = removableObj.GetArrivePoint(i);
+
+            arrive.y = 0;
+            Debug.Log(arrive);
+
+            pik.FlyPikmin(arrive);
+            pik.objScript = removableObj;
+            Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
+            pik.transform.rotation = Quaternion.identity;
+
+            Rigidbody rigid = pik.GetComponent<Rigidbody>();
+            rigid.isKinematic = false;
+            rigid.velocity = Vo;
+
+            CatchPik();
+            pik = myHand.GetComponentInChildren<Pikmin>();
+
+            i++;
+
+            anim.SetTrigger("FastThrow");
+            //state = PlayerState.ThrowAction;
+            yield return new WaitForSeconds(0.4f);
+        }
+
+        removableObj = null;
     }
 
     public void ChangeState(PlayerState _state) { state = _state; }
