@@ -253,8 +253,6 @@ public class Pikmin : MonoBehaviour, ICollider
         }
     }
 
-
-
     private void OnDrawGizmos()
     {
         Handles.color = Color.red;

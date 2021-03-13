@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    public GameObject pikmin;
+    public GameObject ball;
 
     public Rigidbody bulletRigid;
     public GameObject cursor;
@@ -46,22 +46,10 @@ public class Projectile : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
             {
-                GameObject obj = Instantiate(pikmin, shootPoint.position, Quaternion.identity);
-                Pikmin pik = obj.GetComponent<Pikmin>();
-                pik.FlyPikmin(hit.point);
+                GameObject obj = Instantiate(ball, shootPoint.position, Quaternion.identity);
 
-                Rigidbody rigid;
-                if (obj.TryGetComponent(out rigid))
-                {
-                    rigid.constraints = RigidbodyConstraints.FreezeAll;
-                    rigid.velocity = Vo;
-                }
-                else
-                {
-                    rigid = obj.AddComponent<Rigidbody>();
-                    rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                    rigid.velocity = Vo;
-                }
+                Rigidbody rigid = obj.GetComponent<Rigidbody>();
+                rigid.velocity = Vo;
             }
         }
         else cursor.SetActive(false);
@@ -80,15 +68,23 @@ public class Projectile : MonoBehaviour
     {
         //define the distance x and y first
         Vector3 distance = target - origin;
+        //크기와 방향을 구한다
+
         Vector3 distanceXZ = distance;
         distanceXZ.y = 0;
+        //크기, 방향에서 y가 0인 벡터 (높이에 관여 안하겠다는 뜻)
 
         //create a float the represent our distance
         float Sy = distance.y;
+        //Sy는 크기, 방향 벡터에서 높이이다.
         float Sxz = distanceXZ.magnitude;
+        //Sxz는 두 타겟의 순수 거리이다(y가 0일 때)
 
         float Vxz = Sxz / time;
+        //Vxz는 거리 / 시간 으로 속력을 구한다.
+
         float Vy = Sy / time + 0.5f * Mathf.Abs(Physics.gravity.y) * time;
+        //y / t + 1/2 * g * time
 
         Vector3 result = distanceXZ.normalized;
         result *= Vxz;

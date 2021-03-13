@@ -137,6 +137,13 @@ public class RemovableObj : MonoBehaviour, ICollider
         return transform.GetChild(2 + inNum).position;
     }
 
+    public Vector3 GetArrivePoint(int num)
+    {
+        Debug.Log(inNum);
+        if (isFull()) return Vector3.zero;
+        return transform.GetChild(2 + inNum + num).position;
+    }
+
     public bool isFull() { return inNum == needNum ? true : false; }
 
     public Transform Positioning(Pikmin pikmin)

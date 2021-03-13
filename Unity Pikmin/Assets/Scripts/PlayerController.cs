@@ -201,6 +201,29 @@ public class PlayerController : MonoBehaviour, ICollider
         }
     }
 
+    private void CatchPik()
+    {
+        Pikmin choose = null;
+        float dis = 0.0f;
+
+        foreach (Pikmin pik in pikmins)
+        {
+            if (pik.state == PikminState.FOLLOW)
+            {
+                float cmp = (transform.position - pik.transform.position).magnitude;
+                choose = pik;
+                dis = cmp;
+                break;
+            }
+        }
+
+        if (choose != null)
+        {
+            choose.PickMe(myHand.transform);
+            myPikminCount--;
+        }
+    }
+
     private void CatchPikmin()
     {
         if (Input.GetKeyDown(KeyCode.Space) && myPikminCount > 0 && myHand.transform.childCount == 0)
@@ -256,18 +279,29 @@ public class PlayerController : MonoBehaviour, ICollider
         }
         else
         {
-            Vector3 arrive = removableObj.GetArrivePoint();
-            
-            arrive.y = 0;
-            pik.FlyPikmin(arrive);
-            pik.objScript = removableObj;
-            Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
-            pik.transform.rotation = Quaternion.identity;
+            int count = myPikminCount;
+            for(int i = 0; i < count; i++)
+            {
+                Debug.Log(i);
 
-            Rigidbody rigid = pik.GetComponent<Rigidbody>();
-            rigid.isKinematic = false;
-            rigid.velocity = Vo;
+                Vector3 arrive = removableObj.GetArrivePoint(i);
 
+                arrive.y = 0;
+                pik.FlyPikmin(arrive);
+                pik.objScript = removableObj;
+                Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
+                pik.transform.rotation = Quaternion.identity;
+
+                Rigidbody rigid = pik.GetComponent<Rigidbody>();
+                rigid.isKinematic = false;
+                rigid.velocity = Vo;
+
+                if (myHand.transform.childCount == 0)
+                {
+                    CatchPik();
+                    pik = myHand.GetComponentInChildren<Pikmin>();
+                }
+            }
             removableObj = null;
         }
     }
