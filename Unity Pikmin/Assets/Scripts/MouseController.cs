@@ -63,7 +63,7 @@ public class MouseController : MonoBehaviour
         }
     }
 
-    public static RemovableObj GetRemovableHit
+    public static Removable GetRemovableHit
     {
         get
         {
@@ -71,7 +71,7 @@ public class MouseController : MonoBehaviour
             if(Physics.Raycast(ray, out hit))
             {
                 if(hit.transform.CompareTag("Object")) 
-                    return hit.transform.GetComponent<RemovableObj>();
+                    return hit.transform.GetComponent<Removable>();
             }
             return null;
         }

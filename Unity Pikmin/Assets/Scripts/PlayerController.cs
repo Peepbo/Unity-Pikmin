@@ -14,7 +14,8 @@ public class PlayerController : MonoBehaviour, ICollider
     }
 
     public PlayerState state;
-    public List<Pikmin> pikmins = new List<Pikmin>();
+    //public List<Pikmin> pikmins = new List<Pikmin>();
+    public List<Pikmin2> pikmins = new List<Pikmin2>();
     public List<RemovableObj> objects = new List<RemovableObj>();
 
     public int myPikminCount = 0;
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour, ICollider
     private Animator anim;
     private Vector3 throwPos;//v1.0
     public RemovableObj removableObj;//v1.1
+    public Removable removable;//v1.2
 
     //private float horizontal, vertical;
     private Vector3 direction;
@@ -42,7 +44,7 @@ public class PlayerController : MonoBehaviour, ICollider
 
         foreach(var ob in obj)
         {
-            pikmins.Add(ob.GetComponent<Pikmin>());
+            pikmins.Add(ob.GetComponent<Pikmin2>());
         }
 
         obj = GameObject.FindGameObjectsWithTag("Object");
@@ -146,26 +148,33 @@ public class PlayerController : MonoBehaviour, ICollider
 
             if (_point != Vector3.zero)
             {
-                foreach (Pikmin pik in pikmins)
+                foreach (Pikmin2 pik in pikmins)
                 {
                     if (Vector3.Distance(pik.transform.position, _point) < _radius)
                     {
-                        if (pik.state < (PikminState)3)
+                        if(pik.state < (PikminState)3 && pik.target != transform)
                         {
-                            if (pik.ChangeTarget == transform && pik.state == PikminState.FOLLOW) return;
-
-                            if(pik.isDelivery)//배달중인 피크민
-                            {
-                                pik.objScript.arriveNum--;
-                                pik.objScript.inNum--;
-                                pik.Init();
-                            }
-
+                            pik.Init();
                             pik.ChangeTarget = transform;
                             pik.state = PikminState.FOLLOW;
-
                             myPikminCount++;
                         }
+                        //if (pik.state < (PikminState)3)
+                        //{
+                        //    if (pik.ChangeTarget == transform && pik.state == PikminState.FOLLOW) continue;
+
+                        //    if(pik.isDelivery)//배달중인 피크민
+                        //    {
+                        //        pik.objScript.arriveNum--;
+                        //        pik.objScript.inNum--;
+                        //        pik.Init();
+                        //    }
+
+                        //    pik.ChangeTarget = transform;
+                        //    pik.state = PikminState.FOLLOW;
+
+                        //    myPikminCount++;
+                        //}
                     }
                 }
             }
@@ -194,7 +203,7 @@ public class PlayerController : MonoBehaviour, ICollider
             if (myHand.transform.childCount > 0)
             {
                 throwPos = MouseController.GetHit;
-                removableObj = MouseController.GetRemovableHit;
+                removable = MouseController.GetRemovableHit;
 
                 state = PlayerState.ThrowAction;
             }
@@ -206,16 +215,18 @@ public class PlayerController : MonoBehaviour, ICollider
         Pikmin choose = null;
         float dis = 0.0f;
 
-        foreach (Pikmin pik in pikmins)
-        {
-            if (!pik.isDelivery && pik.state == PikminState.FOLLOW)
-            {
-                float cmp = (transform.position - pik.transform.position).magnitude;
-                choose = pik;
-                dis = cmp;
-                break;
-            }
-        }
+        myPikminCount--;
+
+        //foreach (Pikmin pik in pikmins)
+        //{
+        //    if (!pik.isDelivery && pik.state == PikminState.FOLLOW)
+        //    {
+        //        float cmp = (transform.position - pik.transform.position).magnitude;
+        //        choose = pik;
+        //        dis = cmp;
+        //        break;
+        //    }
+        //}
 
         if (choose != null)
         {
@@ -228,10 +239,10 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         if (Input.GetKeyDown(KeyCode.Space) && myPikminCount > 0 && myHand.transform.childCount == 0)
         {
-            Pikmin choose = null;
+            Pikmin2 choose = null;
             float dis = 0.0f;
 
-            foreach (Pikmin pik in pikmins)
+            foreach (Pikmin2 pik in pikmins)
             {
                 if (pik.state == PikminState.FOLLOW)
                 {
@@ -264,11 +275,24 @@ public class PlayerController : MonoBehaviour, ICollider
     #region Animator
     public void ThrowPik()
     {
-        Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
+        if (myHand.transform.childCount == 0) return;
 
-        if (removableObj == null)
+        Pikmin2 pik = myHand.GetComponentInChildren<Pikmin2>();
+
+        //if (removableObj == null)
+        //{
+        //    throwPos.y = 0;
+        //    pik.FlyPikmin(throwPos);
+        //    Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
+        //    pik.transform.rotation = Quaternion.identity;
+
+        //    Rigidbody rigid = pik.GetComponent<Rigidbody>();
+        //    rigid.isKinematic = false;
+        //    rigid.velocity = Vo;
+        //}
+
+        if(removable == null)
         {
-            throwPos.y = 0;
             pik.FlyPikmin(throwPos);
             Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
             pik.transform.rotation = Quaternion.identity;
@@ -277,67 +301,20 @@ public class PlayerController : MonoBehaviour, ICollider
             rigid.isKinematic = false;
             rigid.velocity = Vo;
         }
-        else
+
+        if (removable != null)
         {
-            StartCoroutine(hi(removableObj.needNum - removableObj.inNum));
-            //int count = myPikminCount;
-            //Debug.Log(count);
+            Vector3 endPos = removable.ThrowPos();
+            //throwPos.y = 0;
 
-            //for(int i = 0; i <= count; i++)
-            //{
-            //    Debug.Log(i);
-
-            //    Vector3 arrive = removableObj.GetArrivePoint(i);
-
-            //    arrive.y = 0;
-            //    pik.FlyPikmin(arrive);
-            //    pik.objScript = removableObj;
-            //    Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
-            //    pik.transform.rotation = Quaternion.identity;
-
-            //    Rigidbody rigid = pik.GetComponent<Rigidbody>();
-            //    rigid.isKinematic = false;
-            //    rigid.velocity = Vo;
-
-            //    CatchPik();
-            //    pik = myHand.GetComponentInChildren<Pikmin>();
-            //}
-            //removableObj = null;
-        }
-    }
-
-    IEnumerator hi(int maxPikmin)
-    {
-        int i = 0;
-        while (i < maxPikmin)
-        {
-            Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
-
-            Vector3 arrive = removableObj.GetArrivePoint(i);
-
-            arrive.y = 0;
-            Debug.Log(arrive);
-
-            pik.FlyPikmin(arrive);
-            pik.objScript = removableObj;
-            Vector3 Vo = Parabola.CalculateVelocity(arrive, myHand.transform.position, 1.5f);
+            pik.FlyPikmin(endPos);
+            Vector3 Vo = Parabola.CalculateVelocity(endPos, myHand.transform.position, 1.5f);
             pik.transform.rotation = Quaternion.identity;
 
             Rigidbody rigid = pik.GetComponent<Rigidbody>();
             rigid.isKinematic = false;
             rigid.velocity = Vo;
-
-            CatchPik();
-            pik = myHand.GetComponentInChildren<Pikmin>();
-
-            i++;
-
-            anim.SetTrigger("FastThrow");
-            //state = PlayerState.ThrowAction;
-            yield return new WaitForSeconds(0.4f);
         }
-
-        removableObj = null;
     }
 
     public void ChangeState(PlayerState _state) { state = _state; }
@@ -380,7 +357,5 @@ public class PlayerController : MonoBehaviour, ICollider
         transform.Translate(direction * Time.deltaTime);
     }
 
-    #region Static
     public static Transform GetPos { get; private set; }
-    #endregion
 }

@@ -49,19 +49,19 @@ public class RemovableObj : MonoBehaviour, ICollider
 
     private void Start()
     {
-        GameObject[] colObj = new GameObject[needNum];
-
-        float angle;
-        float PI2 = Mathf.PI * 2;
-
-        for (int i = 0; i < needNum; i++)
-        {
-            colObj[i] = Instantiate(colPrefab, transform);
-            colObj[i].transform.position += Vector3.down * downValue;
-
-            angle = i * PI2 / needNum;
-            colObj[i].transform.position += new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
-        }
+        //GameObject[] colObj = new GameObject[needNum];
+        //
+        //float angle;
+        //float PI2 = Mathf.PI * 2;
+        //
+        //for (int i = 0; i < needNum; i++)
+        //{
+        //    colObj[i] = Instantiate(colPrefab, transform);
+        //    colObj[i].transform.position += Vector3.down * downValue;
+        //
+        //    angle = i * PI2 / needNum;
+        //    colObj[i].transform.position += new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
+        //}
 
         textSetting.ChangeText(needNum.ToString());
     }
@@ -132,9 +132,30 @@ public class RemovableObj : MonoBehaviour, ICollider
 
     public Vector3 GetArrivePoint()
     {
+        //float angle;
+        //float PI2 = Mathf.PI * 2;
+
+        //return new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
+
         Debug.Log(inNum);
         if (isFull()) return Vector3.zero;
         return transform.GetChild(2 + inNum).position;
+
+        /*
+         *         //GameObject[] colObj = new GameObject[needNum];
+        //
+        //float angle;
+        //float PI2 = Mathf.PI * 2;
+        //
+        //for (int i = 0; i < needNum; i++)
+        //{
+        //    colObj[i] = Instantiate(colPrefab, transform);
+        //    colObj[i].transform.position += Vector3.down * downValue;
+        //
+        //    angle = i * PI2 / needNum;
+        //    colObj[i].transform.position += new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
+        //}
+         */
     }
 
     public Vector3 GetArrivePoint(int num)
