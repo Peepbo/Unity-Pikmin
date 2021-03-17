@@ -159,22 +159,6 @@ public class PlayerController : MonoBehaviour, ICollider
                             pik.state = PikminState.FOLLOW;
                             myPikminCount++;
                         }
-                        //if (pik.state < (PikminState)3)
-                        //{
-                        //    if (pik.ChangeTarget == transform && pik.state == PikminState.FOLLOW) continue;
-
-                        //    if(pik.isDelivery)//배달중인 피크민
-                        //    {
-                        //        pik.objScript.arriveNum--;
-                        //        pik.objScript.inNum--;
-                        //        pik.Init();
-                        //    }
-
-                        //    pik.ChangeTarget = transform;
-                        //    pik.state = PikminState.FOLLOW;
-
-                        //    myPikminCount++;
-                        //}
                     }
                 }
             }
@@ -291,22 +275,19 @@ public class PlayerController : MonoBehaviour, ICollider
         //    rigid.velocity = Vo;
         //}
 
-        if(removable == null)
-        {
-            pik.FlyPikmin(throwPos);
-            Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
-            pik.transform.rotation = Quaternion.identity;
-
-            Rigidbody rigid = pik.GetComponent<Rigidbody>();
-            rigid.isKinematic = false;
-            rigid.velocity = Vo;
-        }
+        //if(removable == null)
+        //{
+        //    pik.FlyPikmin(throwPos);
+        //    Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
+        //    pik.transform.rotation = Quaternion.identity;
+        //    Rigidbody rigid = pik.GetComponent<Rigidbody>();
+        //    rigid.isKinematic = false;
+        //    rigid.velocity = Vo;
+        //}
 
         if (removable != null)
         {
             Vector3 endPos = removable.ThrowPos();
-            //throwPos.y = 0;
-
             pik.FlyPikmin(endPos);
             Vector3 Vo = Parabola.CalculateVelocity(endPos, myHand.transform.position, 1.5f);
             pik.transform.rotation = Quaternion.identity;

@@ -28,44 +28,23 @@ public class Removable : MonoBehaviour
         colObjs = transform.GetChild(1);
     }
 
-    private void Start()
-    {
-        capacity = needs;
-
-        GameObject[] colObj = new GameObject[needs];
-
-        float angle;
-        float PI2 = Mathf.PI * 2;
-
-        for (int i = 0; i < needs; i++)
-        {
-            colObj[i] = Instantiate(colPrefab, colObjs);
-            colObj[i].transform.position = transform.position + Vector3.down * gYpos;
-
-            angle = i * PI2 / needs;
-            colObj[i].transform.position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
-        }
-
-        for(int i = 0; i < workers.childCount; i++)
-        {
-            Arrangement(workers.GetChild(i));
-        }
+    public void test()
+    { 
+        come--;
+        CheckNum2();
     }
 
     public void Arrangement(Transform trans)
     {
         trans.parent = workers;
 
-        //CheckNumber();
         Relocation();
     }
 
     public Vector3 ThrowPos()
     {
-        if (capacity == come)
-        {
-            CheckNumber();
-        }
+        if (capacity == come) CheckNumber();
+
         return colObjs.GetChild(come++).position;
     }
 
@@ -78,6 +57,29 @@ public class Removable : MonoBehaviour
             _child = workers.GetChild(i).GetComponent<Pikmin2>();
             _child.ChangeTarget = colObjs.GetChild(i);
         }
+    }
+
+    public void CheckNum2()
+    {
+        float PI2 = Mathf.PI * 2;
+        for(int i = 0; i < capacity; i++)
+        {
+            float _angle = i * PI2 / come;
+
+            if (i < come)
+            {
+                colObjs.GetChild(i).position = transform.position + Vector3.down * gYpos;
+                colObjs.GetChild(i).position += new Vector3(Mathf.Cos(_angle) * gSize, 0, Mathf.Sin(_angle) * gSize);
+                workers.GetChild(i).GetComponent<Pikmin2>().ChangeTarget = colObjs.GetChild(i);
+            }
+            else
+            {
+                ObjectPool.instance.ReturnObject(colObjs.GetChild(i).gameObject);
+                break;
+            }
+        }
+
+        capacity--;
     }
 
     private void CheckNumber()
@@ -95,7 +97,10 @@ public class Removable : MonoBehaviour
 
             else
             {
-                GameObject colObj = Instantiate(colPrefab, colObjs);
+                GameObject colObj = ObjectPool.instance.GetObjectFromPooler("Collider");
+                colObj.SetActive(true);
+                colObj.transform.parent = colObjs;
+                //GameObject colObj = Instantiate(colPrefab, colObjs);
                 colObj.transform.position = transform.position + Vector3.down * gYpos;
                 colObj.transform.position += new Vector3(Mathf.Cos(_angle) * gSize, 0, Mathf.Sin(_angle) * gSize);
             }

@@ -81,21 +81,11 @@ public class Pikmin2 : MonoBehaviour, ICollider
         {
             Removable removable = transform.parent.parent.GetComponent<Removable>();
 
-            removable.come--;
-
-            GameObject obj = target.gameObject;
             transform.parent = null;
-
-            if (removable.capacity > removable.needs)
-            {
-                removable.capacity--;
-                Destroy(obj);
-            }
-
-            //removable.Relocation();
+            removable.test();
         }
 
-        agent.stoppingDistance = 1f;
+        agent.stoppingDistance = 2f;
     }
 
     public void PickMe(Transform parent)
