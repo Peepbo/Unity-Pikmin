@@ -82,7 +82,7 @@ public class Pikmin2 : MonoBehaviour, ICollider
             Removable removable = transform.parent.parent.GetComponent<Removable>();
 
             transform.parent = null;
-            removable.test();
+            removable.FinishWork();
         }
 
         agent.stoppingDistance = 2f;

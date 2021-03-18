@@ -36,9 +36,13 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public GameObject GetObjectFromPooler(string tag)
+    public GameObject BorrowObject(string tag)
     {
-        if (parentDictionary[tag].childCount != 0) return parentDictionary[tag].GetChild(0).gameObject;
+        if (parentDictionary[tag].childCount != 0)
+        {
+            parentDictionary[tag].GetChild(0).gameObject.SetActive(true);
+            return parentDictionary[tag].GetChild(0).gameObject;
+        }
 
         foreach (ObjectPoolItem item in itemToPool)
         {
@@ -47,7 +51,7 @@ public class ObjectPool : MonoBehaviour
                 if (item.shouldExpend)
                 {
                     GameObject _obj = Instantiate(item.prefToPool);
-                    _obj.SetActive(false);
+                    _obj.SetActive(true);
                     _obj.transform.parent = parentDictionary[_obj.tag];
                     return _obj;
                 }

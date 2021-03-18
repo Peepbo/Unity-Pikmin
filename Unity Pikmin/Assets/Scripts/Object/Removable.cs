@@ -8,104 +8,85 @@ public class Removable : MonoBehaviour
 {
     [Header("Gizmo")]
     public Color gColor;
-    public float gSize;
-    public float gYpos;
+    public float gSize, gYpos, gAngle;
 
     [Header("Settings")]
+    private Transform factory, location;
+
     public GameObject colPrefab;
+    public int needs, works;
 
-    private Transform workers;
-    private Transform colObjs;
-
-    public int needs;
-    public int capacity;
-
-    public int come;
+    private float PI2, angle;
 
     private void Awake()
     {
-        workers = transform.GetChild(0);
-        colObjs = transform.GetChild(1);
+        factory = transform.GetChild(0);
+        location = transform.GetChild(1);
+
+        PI2 = Mathf.PI * 2;
     }
 
-    public void test()
-    { 
-        come--;
-        CheckNum2();
+    public void FinishWork()
+    {
+        //마지막 위치를 반환
+        Reduction();
     }
 
     public void Arrangement(Transform trans)
     {
-        trans.parent = workers;
+        trans.parent = factory;
 
         Relocation();
     }
 
     public Vector3 ThrowPos()
     {
-        if (capacity == come) CheckNumber();
+        //새로운 위치를 할당
+        Expansion();
 
-        return colObjs.GetChild(come++).position;
+        return location.GetChild(location.childCount - 1).position;
     }
 
     public void Relocation()
     {
         Pikmin2 _child = null;
-        
-        for (int i = 0; i < workers.childCount; i++)
+
+        for (int i = 0; i < factory.childCount; i++)
         {
-            _child = workers.GetChild(i).GetComponent<Pikmin2>();
-            _child.ChangeTarget = colObjs.GetChild(i);
+            _child = factory.GetChild(i).GetComponent<Pikmin2>();
+            _child.ChangeTarget = location.GetChild(i);
         }
     }
 
-    public void CheckNum2()
+    public void Reduction()
     {
-        float PI2 = Mathf.PI * 2;
-        for(int i = 0; i < capacity; i++)
-        {
-            float _angle = i * PI2 / come;
+        works--;
 
-            if (i < come)
-            {
-                colObjs.GetChild(i).position = transform.position + Vector3.down * gYpos;
-                colObjs.GetChild(i).position += new Vector3(Mathf.Cos(_angle) * gSize, 0, Mathf.Sin(_angle) * gSize);
-                workers.GetChild(i).GetComponent<Pikmin2>().ChangeTarget = colObjs.GetChild(i);
-            }
-            else
-            {
-                ObjectPool.instance.ReturnObject(colObjs.GetChild(i).gameObject);
-                break;
-            }
-        }
+        FixLocation();
+        Relocation();
 
-        capacity--;
+        ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
     }
 
-    private void CheckNumber()
+    private void Expansion()
     {
-        float PI2 = Mathf.PI * 2;
+        works++;
 
-        for (int i = 0; i < come + 1; i++)
+        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
+        _colObj.transform.parent = location;
+
+        FixLocation();
+    }
+
+    private void FixLocation()
+    {
+        for (int i = 0; i < works; i++)
         {
-            float _angle = i * PI2 / (come + 1);
-            if (i < come)
-            {
-                colObjs.GetChild(i).transform.position = transform.position + Vector3.down * gYpos;
-                colObjs.GetChild(i).transform.position += new Vector3(Mathf.Cos(_angle) * gSize, 0, Mathf.Sin(_angle) * gSize);
-            }
+            angle = i * PI2 / works;
 
-            else
-            {
-                GameObject colObj = ObjectPool.instance.GetObjectFromPooler("Collider");
-                colObj.SetActive(true);
-                colObj.transform.parent = colObjs;
-                //GameObject colObj = Instantiate(colPrefab, colObjs);
-                colObj.transform.position = transform.position + Vector3.down * gYpos;
-                colObj.transform.position += new Vector3(Mathf.Cos(_angle) * gSize, 0, Mathf.Sin(_angle) * gSize);
-            }
+            location.GetChild(i).position = transform.position + Vector3.down * gYpos;
+            location.GetChild(i).position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
         }
-        capacity = come + 1;
     }
 
     private void OnDrawGizmos()
@@ -113,12 +94,11 @@ public class Removable : MonoBehaviour
         Handles.color = gColor;
         Handles.DrawWireDisc(transform.position + Vector3.down * gYpos, Vector3.down, gSize);
 
-        float _angle;
-        for(int i = 0; i < come; i++)
+        for (int i = 0; i < works; i++)
         {
-            _angle = i * Mathf.PI * 2 / come;
-            Gizmos.DrawWireSphere(transform.position + Vector3.down * gYpos + new Vector3(Mathf.Cos(_angle) * gSize,
-                0, Mathf.Sin(_angle) * gSize), 0.2f);
+            gAngle = i * Mathf.PI * 2 / works;
+            Gizmos.DrawWireSphere(transform.position + Vector3.down * gYpos + new Vector3(Mathf.Cos(gAngle) * gSize,
+                0, Mathf.Sin(gAngle) * gSize), 0.2f);
         }
     }
 }
