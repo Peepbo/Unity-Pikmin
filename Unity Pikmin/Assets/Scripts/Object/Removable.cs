@@ -1,22 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.AI;
 using UnityEngine;
 using UnityEditor;
 
-public class Removable : MonoBehaviour
+public partial class Removable : MonoBehaviour
 {
-    [Header("Gizmo")]
-    public Color gColor;
-    public float gSize, gYpos, gAngle;
+    [Header("[Gizmo Settings]")]
+    public  Color        gColor;
+    public  float        gSize;
+    public  float        gYpos;
+    private float        gAngle;
 
-    [Header("Settings")]
-    private Transform factory, location;
-
-    public GameObject colPrefab;
-    public int needs, works;
-
-    private float PI2, angle;
+    [Header("[Removable Settings]")]
+    public  int          needs;
+    private int          works;
+    private float        PI2, angle;
+    private Transform    factory, location;
 
     private void Awake()
     {
@@ -24,14 +23,18 @@ public class Removable : MonoBehaviour
         location = transform.GetChild(1);
 
         PI2 = Mathf.PI * 2;
+
+        AgentAwake();
     }
 
+    // Pikmin을 Object에서 해제함
     public void FinishWork()
     {
-        //마지막 위치를 반환
+        // 공간 축소
         Reduction();
     }
 
+    // Pikmin을 factory에 넣음
     public void Arrangement(Transform trans)
     {
         trans.parent = factory;
@@ -39,14 +42,16 @@ public class Removable : MonoBehaviour
         Relocation();
     }
 
+    // Pikmin이 날아갈 위치를 반환함
     public Vector3 ThrowPos()
     {
-        //새로운 위치를 할당
+        // 공간 확장
         Expansion();
 
         return location.GetChild(location.childCount - 1).position;
     }
 
+    // 각각의 Pikmin 위치를 해당 location 위치에 지정 (Pikmin[i] -> location[i])
     public void Relocation()
     {
         Pikmin2 _child = null;
@@ -58,6 +63,7 @@ public class Removable : MonoBehaviour
         }
     }
 
+    // 공간을 축소하고, location 재 지정함
     public void Reduction()
     {
         works--;
@@ -68,6 +74,7 @@ public class Removable : MonoBehaviour
         ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
     }
 
+    // 공간을 확장하고, location 재 지정
     private void Expansion()
     {
         works++;
@@ -78,6 +85,7 @@ public class Removable : MonoBehaviour
         FixLocation();
     }
 
+    // Location 위치를 works의 개수에 맞춰 재지정함
     private void FixLocation()
     {
         for (int i = 0; i < works; i++)

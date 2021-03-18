@@ -5940,10 +5940,10 @@ MonoBehaviour:
   gColor: {r: 1, g: 1, b: 1, a: 1}
   gSize: 1
   gYpos: 0
+  gAngle: 0
   colPrefab: {fileID: 208421836376025329, guid: 42540d1b4bec59640a0f02f1f011a2ab, type: 3}
   needs: 3
-  capacity: 0
-  come: 0
+  works: 0
 --- !u!135 &593131043
 SphereCollider:
   m_ObjectHideFlags: 0

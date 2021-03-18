@@ -15,6 +15,7 @@ public class Pikmin2 : MonoBehaviour, ICollider
     private Rigidbody rigid;
 
     private Action stayAct, followAct, flyAct, attackAct;
+    private bool isDelivery;
 
     private void Awake()
     {
@@ -25,8 +26,6 @@ public class Pikmin2 : MonoBehaviour, ICollider
 
     private void Start()
     {
-        //target = PlayerController.GetPos;
-
         SetAction();
     }
 
@@ -50,7 +49,20 @@ public class Pikmin2 : MonoBehaviour, ICollider
 
     private void Move()
     {
-        if(target != null) agent.SetDestination(target.position);
+        if (target != null)
+        {
+            if(isDelivery && Vector3.Distance(transform.position,target.position) < 0.3f)
+            {
+                agent.enabled = false;
+                transform.position = target.position;
+            }
+
+            else
+            {
+                agent.enabled = true;
+                agent.SetDestination(target.position);
+            }
+        }
     }
 
     // Update is called once per frame
@@ -81,6 +93,7 @@ public class Pikmin2 : MonoBehaviour, ICollider
         {
             Removable removable = transform.parent.parent.GetComponent<Removable>();
 
+            isDelivery = false;
             transform.parent = null;
             removable.FinishWork();
         }
@@ -100,13 +113,38 @@ public class Pikmin2 : MonoBehaviour, ICollider
 
     public void FlyPikmin(Vector3 pos)
     {
-        agent.enabled = false;
+        GetComponent<CapsuleCollider>().enabled = false;
+        transform.parent = null;
         state = PikminState.FLY;
         flyTarget = pos;
         rigid.useGravity = true;
-        transform.parent = null;
+        agent.enabled = false;
+        StartCoroutine(RotateMe(1.4f));
+    }
+
+    private IEnumerator RotateMe(float inTime)
+    {
         transform.LookAt(flyTarget);
-        GetComponent<CapsuleCollider>().enabled = false;
+        float culTime = inTime / 2;
+
+        Vector3 byAngles = new Vector3(-360, 0, 0);
+
+        Quaternion fromAngle = transform.rotation;
+        Quaternion toAngle = Quaternion.Euler(transform.eulerAngles + byAngles / 2);
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / culTime)
+        {
+            transform.rotation = Quaternion.Lerp(fromAngle, toAngle, t);
+            yield return null;
+        }
+
+        toAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / culTime)
+        {
+            transform.rotation = Quaternion.Lerp(fromAngle, toAngle, t);
+            yield return null;
+        }
     }
 
     public void Fly()
@@ -125,10 +163,13 @@ public class Pikmin2 : MonoBehaviour, ICollider
             {
                 if(col.CompareTag("Object"))
                 {
+                    isDelivery = true;
+
                     col.GetComponent<Removable>().Arrangement(transform);
                     agent.stoppingDistance = 0.2f;
                     state = PikminState.FOLLOW;
                     flag = false;
+                    break;
                 }
             }
 
@@ -137,6 +178,8 @@ public class Pikmin2 : MonoBehaviour, ICollider
                 target = null;
                 state = PikminState.STAY;
             }
+
+            transform.rotation = Quaternion.identity;
         }
     }
 

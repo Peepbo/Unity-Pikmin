@@ -152,7 +152,7 @@ public class PlayerController : MonoBehaviour, ICollider
                 {
                     if (Vector3.Distance(pik.transform.position, _point) < _radius)
                     {
-                        if(pik.state < (PikminState)3 && pik.target != transform)
+                        if(pik.state < (PikminState)2 && pik.target != transform)
                         {
                             pik.Init();
                             pik.ChangeTarget = transform;
