@@ -27,6 +27,8 @@ public partial class Removable : MonoBehaviour
         AgentAwake();
     }
 
+    private void Update() => AgentUpdate();
+
     // Pikmin을 Object에서 해제함
     public void FinishWork()
     {
@@ -54,12 +56,12 @@ public partial class Removable : MonoBehaviour
     // 각각의 Pikmin 위치를 해당 location 위치에 지정 (Pikmin[i] -> location[i])
     public void Relocation()
     {
-        Pikmin2 _child = null;
+        Pikmin _child = null;
 
         for (int i = 0; i < factory.childCount; i++)
         {
-            _child = factory.GetChild(i).GetComponent<Pikmin2>();
-            _child.ChangeTarget = location.GetChild(i);
+            _child = factory.GetChild(i).GetComponent<Pikmin>();
+            _child.PikminTarget = location.GetChild(i);
         }
     }
 

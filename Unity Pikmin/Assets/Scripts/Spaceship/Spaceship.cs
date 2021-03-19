@@ -5,11 +5,17 @@ using UnityEngine;
 
 public class Spaceship : MonoBehaviour
 {
-    public static Vector3 pos;
+    public static Spaceship instance;
+
+    public Vector3 pos;
     public GameObject lightVulume;
     public ParticleSystem particle;
     public GameObject smoke;
 
+    private void Awake()
+    {
+        instance = this;
+    }
     // Start is called before the first frame update
     void Start()
     {

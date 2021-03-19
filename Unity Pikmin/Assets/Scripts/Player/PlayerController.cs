@@ -5,37 +5,25 @@ using System;
 
 public class PlayerController : MonoBehaviour, ICollider
 {
-    public enum PlayerState
-    {
-        Idle,
-        Walk,
-        ThrowReady,
-        ThrowAction
-    }
+    public enum PlayerState   {Idle,Walk,ThrowReady,ThrowAction}
 
-    public PlayerState state;
-    //public List<Pikmin> pikmins = new List<Pikmin>();
-    public List<Pikmin2> pikmins = new List<Pikmin2>();
-    public List<RemovableObj> objects = new List<RemovableObj>();
+    public PlayerState        state;
+    public int                myPikminCount;
+    public GameObject         myHand;
 
-    public int myPikminCount = 0;
-    public GameObject myHand;
+    private Animator          anim;
+    private Vector3           throwPos;
+    public Removable          removable;
+    private Vector3           direction;
 
-    private Animator anim;
-    private Vector3 throwPos;//v1.0
-    public RemovableObj removableObj;//v1.1
-    public Removable removable;//v1.2
-
-    //private float horizontal, vertical;
-    private Vector3 direction;
-
-    Action idleAct, walkAct, throw0Act, throw1Act;
+    private Action            idleAct, walkAct, throw0Act, throw1Act;
+    public  List<Pikmin>      pikmins = new List<Pikmin>();
      
     private void Awake()
     {
-        GetPos = transform;
         anim = transform.GetComponentInChildren<Animator>();
         state = PlayerState.Idle;
+        FootPos = transform.GetChild(2).transform;
     }
 
     private void Start()
@@ -44,13 +32,7 @@ public class PlayerController : MonoBehaviour, ICollider
 
         foreach(var ob in obj)
         {
-            pikmins.Add(ob.GetComponent<Pikmin2>());
-        }
-
-        obj = GameObject.FindGameObjectsWithTag("Object");
-        foreach (var ob in obj)
-        {
-            objects.Add(ob.GetComponent<RemovableObj>());
+            pikmins.Add(ob.GetComponent<Pikmin>());
         }
 
         SetAction();
@@ -124,7 +106,7 @@ public class PlayerController : MonoBehaviour, ICollider
         Vector3 pos = transform.position;
 
         direction = new Vector3(h, 0, v);
-        if (Mathf.Abs(h) + (Mathf.Abs(v)) > 0f)
+        if (Mathf.Abs(h) + Mathf.Abs(v) > 0f)
         {
             state = PlayerState.Walk;
 
@@ -148,14 +130,14 @@ public class PlayerController : MonoBehaviour, ICollider
 
             if (_point != Vector3.zero)
             {
-                foreach (Pikmin2 pik in pikmins)
+                foreach (Pikmin pik in pikmins)
                 {
                     if (Vector3.Distance(pik.transform.position, _point) < _radius)
                     {
-                        if(pik.state < (PikminState)2 && pik.target != transform)
+                        if(pik.state < (PikminState)2 && pik.PikminTarget != transform)
                         {
                             pik.Init();
-                            pik.ChangeTarget = transform;
+                            pik.PikminTarget = transform;
                             pik.state = PikminState.FOLLOW;
                             myPikminCount++;
                         }
@@ -194,41 +176,16 @@ public class PlayerController : MonoBehaviour, ICollider
         }
     }
 
-    private void CatchPik()
-    {
-        Pikmin choose = null;
-        float dis = 0.0f;
-
-        myPikminCount--;
-
-        //foreach (Pikmin pik in pikmins)
-        //{
-        //    if (!pik.isDelivery && pik.state == PikminState.FOLLOW)
-        //    {
-        //        float cmp = (transform.position - pik.transform.position).magnitude;
-        //        choose = pik;
-        //        dis = cmp;
-        //        break;
-        //    }
-        //}
-
-        if (choose != null)
-        {
-            choose.PickMe(myHand.transform);
-            myPikminCount--;
-        }
-    }
-
     private void CatchPikmin()
     {
         if (Input.GetKeyDown(KeyCode.Space) && myPikminCount > 0 && myHand.transform.childCount == 0)
         {
-            Pikmin2 choose = null;
+            Pikmin choose = null;
             float dis = 0.0f;
 
-            foreach (Pikmin2 pik in pikmins)
+            foreach (Pikmin pik in pikmins)
             {
-                if (pik.state == PikminState.FOLLOW)
+                if (pik.state == PikminState.FOLLOW || pik.state == PikminState.STAY)
                 {
                     float cmp = (transform.position - pik.transform.position).magnitude;
 
@@ -261,41 +218,12 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         if (myHand.transform.childCount == 0) return;
 
-        Pikmin2 pik = myHand.GetComponentInChildren<Pikmin2>();
+        Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
 
-        //if (removableObj == null)
-        //{
-        //    throwPos.y = 0;
-        //    pik.FlyPikmin(throwPos);
-        //    Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
-        //    pik.transform.rotation = Quaternion.identity;
-
-        //    Rigidbody rigid = pik.GetComponent<Rigidbody>();
-        //    rigid.isKinematic = false;
-        //    rigid.velocity = Vo;
-        //}
-
-        //if(removable == null)
-        //{
-        //    pik.FlyPikmin(throwPos);
-        //    Vector3 Vo = Parabola.CalculateVelocity(throwPos, myHand.transform.position, 1.5f);
-        //    pik.transform.rotation = Quaternion.identity;
-        //    Rigidbody rigid = pik.GetComponent<Rigidbody>();
-        //    rigid.isKinematic = false;
-        //    rigid.velocity = Vo;
-        //}
-
-        if (removable != null)
-        {
-            Vector3 endPos = removable.ThrowPos();
-            pik.FlyPikmin(endPos);
-            Vector3 Vo = Parabola.CalculateVelocity(endPos, myHand.transform.position, 1.5f);
-            pik.transform.rotation = Quaternion.identity;
-
-            Rigidbody rigid = pik.GetComponent<Rigidbody>();
-            rigid.isKinematic = false;
-            rigid.velocity = Vo;
-        }
+        if(removable == null)
+            pik.FlyPikmin(myHand.transform.position, throwPos);
+        else
+            pik.FlyPikmin(myHand.transform.position, removable.ThrowPos());
     }
 
     public void ChangeState(PlayerState _state) { state = _state; }
@@ -338,5 +266,6 @@ public class PlayerController : MonoBehaviour, ICollider
         transform.Translate(direction * Time.deltaTime);
     }
 
-    public static Transform GetPos { get; private set; }
+    //public static Transform GetPos { get; private set; }
+    public static Transform FootPos { get; private set; }
 }

@@ -5,71 +5,104 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-public enum PikminState
-{
-    STAY,
-    FOLLOW,
-    ATTACK,
-    FLY
-}
+public enum PikminState {STAY, FOLLOW, ATTACK, FLY}
 
 public class Pikmin : MonoBehaviour, ICollider
 {
-    public RemovableObj objScript;
+    public  PikminState      state;
+    private Vector3          flyTarget;
+    private Transform        followTarget;
+    private NavMeshAgent     agent;
+    private Rigidbody        rigid;
 
-    public PikminState state;
-    public Vector3 flyTarget;
-    public CapsuleCollider col;
+    private Animator         anim;
 
-    public bool isDelivery;
-    private bool isArrive;
-
-    private Transform target;
-    private NavMeshAgent agent;
-    private Rigidbody rigid;
-    private float checkTime;
-
-    private Action stayAct, followAct, flyAct, attackAct;
+    private Action           stayAct, followAct, flyAct, attackAct;
+    private bool             isDelivery;
 
     private void Awake()
     {
-        col = GetComponent<CapsuleCollider>();
         agent = GetComponent<NavMeshAgent>();
         rigid = GetComponent<Rigidbody>();
+        anim  = transform.GetChild(0).GetComponent<Animator>();
         state = PikminState.STAY;
     }
 
-    private void Start()
-    {
-        target = PlayerController.GetPos;
-
-        SetAction();
-    }
-
-    public void Init()
-    {
-        transform.parent = null;
-        objScript = null;
-        isDelivery = false;
-    }
+    private void Start() => SetAction();
 
     private void SetAction()
     {
         stayAct = () =>
         {
+            Stay();
+            anim.SetInteger("animation", 1);
         };
-
         followAct = () =>
         {
             Move();
+            anim.SetInteger("animation", 2);
         };
-
-        flyAct = () =>
-        {
-            FlyCheck();
-        };
-
+        flyAct    = () => Fly();
         attackAct = () => { };
+    }
+
+    private void Stay()
+    {
+        agent.enabled = false;
+
+        if (followTarget != null)
+        {
+            if(!isDelivery && Vector3.Distance(transform.position,followTarget.position) > 2.0f)
+            {
+                state = PikminState.FOLLOW;
+            }
+        }
+    }
+
+    private void Move()
+    {
+        agent.enabled = true;
+        agent.SetDestination(followTarget.position);
+
+        if (Vector3.Distance(transform.position, followTarget.position) < 2.0f)
+        {
+            state = PikminState.STAY;
+        }
+    }
+
+    private void Fly()
+    {
+        if (Vector3.Distance(transform.position, flyTarget) < 0.5f)
+        {
+            agent.enabled = true;
+            rigid.isKinematic = true;
+
+            Collider[] cols = Physics.OverlapSphere(transform.position, 2);
+
+            bool flag = true;
+
+            foreach (var col in cols)
+            {
+                if (col.CompareTag("Object"))
+                {
+                    isDelivery = true;
+
+                    col.GetComponent<Removable>().Arrangement(transform);
+                    agent.stoppingDistance = 0.2f;
+                    state = PikminState.FOLLOW;
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (flag)
+            {
+                followTarget = null;
+                state = PikminState.STAY;
+            }
+
+            transform.rotation = Quaternion.identity;
+        }
     }
 
     // Update is called once per frame
@@ -83,16 +116,7 @@ public class Pikmin : MonoBehaviour, ICollider
                 stayAct();
                 break;
             case PikminState.FOLLOW:
-                if (agent.enabled == false) return;
-
-                if (!isDelivery)
-                {
-                    followAct();
-                }
-                else
-                {
-                    CheckMove();
-                }
+                followAct();
                 break;
             case PikminState.FLY:
                 flyAct();
@@ -103,164 +127,73 @@ public class Pikmin : MonoBehaviour, ICollider
         }
     }
 
-    #region Action
-    private void Move()
+    public void Init()
     {
-        Vector3 angle = (target.position - transform.position).normalized;
-        agent.stoppingDistance = 0.75f;
-        agent.SetDestination(transform.position + angle);
-    }
-
-    private void CheckMove()
-    {
-        float distance = Vector3.Magnitude(target.position - transform.position);
-
-        if (distance < 0.3f)
+        if(transform.parent != null)
         {
-            if (objScript != null)
-            {
-                if (!isArrive) StartCoroutine(ArriveTime());
-            }
+            Removable removable = transform.parent.parent.GetComponent<Removable>();
+
+            isDelivery = false;
+            transform.parent = null;
+            removable.FinishWork();
         }
 
-        if (objScript != null)
-        {
-            agent.stoppingDistance = 0.2f;
-            agent.SetDestination(target.position);
-        }
-    }
-
-    IEnumerator ArriveTime()
-    {
-        isArrive = true;
-        yield return new WaitForSeconds(1.5f);
-        objScript.arriveNum++;
-        Vector3 goal = target.position;
-        goal.y = transform.position.y;
-        transform.position = goal;
-        agent.enabled = false;
-        isArrive = false;
-    }
-
-    private void FlyCheck()
-    {
-        if (Vector3.Magnitude(flyTarget - transform.position) < 1f)
-        {
-            state = PikminState.STAY;
-            Rigidbody rigid = GetComponent<Rigidbody>();
-            rigid.isKinematic = true;
-            rigid.Sleep();
-            agent.enabled = true;
-
-            //ObjectCheck();
-            FindObject(objScript);
-        }
-
-        else
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, 0.5f))
-            {
-                checkTime += Time.deltaTime;
-            }
-
-            if (checkTime > 1.0f)
-            {
-                checkTime = 0;
-                state = PikminState.STAY;
-                Rigidbody rigid = GetComponent<Rigidbody>();
-                rigid.isKinematic = true;
-                rigid.Sleep();
-                agent.enabled = true;
-
-                //ObjectCheck();
-                FindObject(objScript);
-            }
-        }
-    }
-
-    public void FindObject(RemovableObj script)
-    {
-        if (script == null) return;
-        objScript = script;
-        if (objScript.isFull()) return;
-
-        state = PikminState.FOLLOW;
-
-        ChangeTarget = objScript.Positioning(this);
-        transform.parent = ChangeTarget;
-        isDelivery = true;
-        col.enabled = false;
-    }
-    #endregion
-
-    private IEnumerator RotateMe(float inTime)
-    {
-        float culTime = inTime / 2;
-
-        Vector3 byAngles = new Vector3(-360, 0, 0);
-
-        Quaternion fromAngle = transform.rotation;
-        Quaternion toAngle = Quaternion.Euler(transform.eulerAngles + byAngles / 2);
-
-        for (float t = 0f; t < 1f; t += Time.deltaTime / culTime)
-        {
-            transform.rotation = Quaternion.Lerp(fromAngle, toAngle, t);
-            yield return null;
-        }
-
-        toAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
-
-        for (float t = 0f; t < 1f; t += Time.deltaTime / culTime)
-        {
-            transform.rotation = Quaternion.Lerp(fromAngle, toAngle, t);
-            yield return null;
-        }
+        agent.stoppingDistance = 2f;
     }
 
     public void PickMe(Transform parent)
     {
-        GetComponent<CapsuleCollider>().enabled = false;
         transform.parent = parent;
         transform.position = parent.position;
         transform.rotation = Quaternion.identity;
-        state = PikminState.ATTACK;
+        state = PikminState.STAY;
+
         rigid.useGravity = false;
         agent.enabled = false;
     }
 
-    public void FlyPikmin(Vector3 pos)
+    public void FlyPikmin (Vector3 startPos, Vector3 endPos)
     {
-        agent.enabled = false;
-        state = PikminState.FLY;
-        flyTarget = pos;
-        rigid.useGravity = true;
-        transform.parent = null;
-        transform.LookAt(flyTarget);
+        Vector3 _parabola = Parabola.CalculateVelocity(endPos, startPos, 1.5f);
+        transform.rotation = Quaternion.identity;
+        rigid.isKinematic = false;
+        rigid.velocity = _parabola;
 
+        transform.parent = null;
+        state = PikminState.FLY;
+        flyTarget = endPos;
+
+        rigid.useGravity = true;
+        agent.enabled = false;
         StartCoroutine(RotateMe(1.5f));
     }
 
-    public Transform ChangeTarget
+    private IEnumerator RotateMe(float inTime)
     {
-        get { return target; }
+        transform.LookAt(flyTarget);
+        Vector3 byAngles = new Vector3(-360, 0, 0);
+
+        Quaternion fromAngle = transform.rotation;
+        Quaternion toAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / inTime)
+        {
+            transform.rotation = Quaternion.Lerp(fromAngle, toAngle, t);
+            yield return null;
+        }
+
+        transform.rotation = Quaternion.identity;
+    }
+
+    public Transform PikminTarget
+    {
+        get { return followTarget; }
         set
         {
-            target = value;
+            followTarget = value;
             agent.enabled = true;
-            isDelivery = false;
-            col.enabled = true;
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Handles.color = Color.red;
-        Handles.DrawWireDisc(transform.position, transform.up, 2f);
-    }
-
-    public void PushedOut(Vector3 direction)
-    {
-        transform.Translate(direction * Time.deltaTime);
-    }
+    public void PushedOut(Vector3 direction) => transform.Translate(direction * Time.deltaTime);
 }

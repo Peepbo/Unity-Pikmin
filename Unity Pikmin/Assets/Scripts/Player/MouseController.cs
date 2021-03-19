@@ -13,7 +13,7 @@ public class MouseController : MonoBehaviour
 
     //private
     private int lineSegment = 10;
-    public Transform playerPos;
+    public Transform handPos;
 
     //static
     private static Camera cam;
@@ -28,7 +28,6 @@ public class MouseController : MonoBehaviour
         GetRadius = 0;
 
         lineVisual.positionCount = lineSegment;
-        playerPos = PlayerController.GetPos;
     }
 
     // Update is called once per frame
@@ -44,8 +43,8 @@ public class MouseController : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             lineVisual.enabled = true;
-            Vector3 Vo = Parabola.CalculateVelocity(GetHit, playerPos.position, 1.5f);
-            Visualize(playerPos.position, Vo);
+            Vector3 Vo = Parabola.CalculateVelocity(GetHit, handPos.position, 1.5f);
+            Visualize(handPos.position, Vo);
         }
         else lineVisual.enabled = false;
     }
