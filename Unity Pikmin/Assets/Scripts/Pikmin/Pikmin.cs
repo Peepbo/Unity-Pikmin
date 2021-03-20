@@ -48,7 +48,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Stay()
     {
-        agent.enabled = false;
+        //agent.enabled = false;
 
         if (followTarget != null)
         {
@@ -168,21 +168,20 @@ public class Pikmin : MonoBehaviour, ICollider
         StartCoroutine(RotateMe(1.5f));
     }
 
-    private IEnumerator RotateMe(float inTime)
+    private IEnumerator RotateMe(float duration)
     {
-        transform.LookAt(flyTarget);
-        Vector3 byAngles = new Vector3(-360, 0, 0);
+        Quaternion startRot = transform.rotation;
+        float t = 0.0f;
 
-        Quaternion fromAngle = transform.rotation;
-        Quaternion toAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
-
-        for (float t = 0f; t < 1f; t += Time.deltaTime / inTime)
+        while(t < duration)
         {
-            transform.rotation = Quaternion.Lerp(fromAngle, toAngle, t);
+            t += Time.deltaTime;
+            transform.rotation = startRot * Quaternion.AngleAxis(t / duration * 720f, Vector3.right);
+
             yield return null;
         }
 
-        transform.rotation = Quaternion.identity;
+        transform.rotation = startRot;
     }
 
     public Transform PikminTarget

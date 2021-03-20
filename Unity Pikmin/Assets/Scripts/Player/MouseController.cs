@@ -47,6 +47,15 @@ public class MouseController : MonoBehaviour
             Visualize(handPos.position, Vo);
         }
         else lineVisual.enabled = false;
+
+        if(GetRemovableHit != null)
+        {
+            if(Input.mouseScrollDelta.y > 0)
+                GetRemovableHit.TextNum++;
+
+            if (Input.mouseScrollDelta.y < 0)
+                GetRemovableHit.TextNum--;
+        }
     }
 
     public static Vector3 GetHit

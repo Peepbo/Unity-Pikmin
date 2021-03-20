@@ -6,21 +6,22 @@ using UnityEditor;
 public partial class Removable : MonoBehaviour
 {
     [Header("[Gizmo Settings]")]
-    public  Color        gColor;
-    public  float        gSize;
-    public  float        gYpos;
-    private float        gAngle;
+    public Color gColor;
+    public float gSize;
+    public float gYpos;
+    private float gAngle;
 
     [Header("[Removable Settings]")]
-    public  int          needs;
-    private int          works;
-    private float        PI2, angle;
-    private Transform    factory, location;
+    public int needs;
+    private int works;
+    private float PI2, angle;
+    private Transform factory, location, textMesh;
 
     private void Awake()
     {
         factory = transform.GetChild(0);
         location = transform.GetChild(1);
+        textMesh = transform.GetChild(2);
 
         PI2 = Mathf.PI * 2;
 
@@ -96,6 +97,16 @@ public partial class Removable : MonoBehaviour
 
             location.GetChild(i).position = transform.position + Vector3.down * gYpos;
             location.GetChild(i).position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
+        }
+    }
+
+    public int TextNum
+    {
+        get { return int.Parse(textMesh.GetComponent<TextMesh>().text); }
+        set 
+        {
+            if (value < 0) return;
+            textMesh.GetComponent<TextMesh>().text = value.ToString(); 
         }
     }
 
