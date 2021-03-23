@@ -6,13 +6,17 @@ public class MouseController : MonoBehaviour
 {
     //public
     public GameObject cursor3D;
-    public GameObject circle;
+    
+    public GameObject cylinder;
+    public GameObject upParticle;
+    public GameObject dwParticle;
 
-    public LayerMask layer;
+    private Vector3 cylinderEndScale = new Vector3(7f, 2f, 7f);
+    private Vector3 particleEndScale = new Vector3(1.43f, 1.43f, 1.43f);
+
     public LineRenderer lineVisual; 
 
     //private
-    private int lineSegment = 10;
     public Transform handPos;
 
     //static
@@ -26,8 +30,7 @@ public class MouseController : MonoBehaviour
         cursor3D.SetActive(true);
         cam = Camera.main;
         GetRadius = 0;
-
-        lineVisual.positionCount = lineSegment;
+        //circleUp.transform.position = circleDown.transform.position;
     }
 
     // Update is called once per frame
@@ -40,13 +43,8 @@ public class MouseController : MonoBehaviour
         else
             CircleDeActive();
 
-        if (Input.GetMouseButton(1))
-        {
-            lineVisual.enabled = true;
-            Vector3 Vo = Parabola.CalculateVelocity(GetHit, handPos.position, 1.5f);
-            Visualize(handPos.position, Vo);
-        }
-        else lineVisual.enabled = false;
+        lineVisual.SetPosition(0, PlayerController.UserTransform.position);
+        lineVisual.SetPosition(1, GetHit);
 
         if(GetRemovableHit != null)
         {
@@ -64,7 +62,9 @@ public class MouseController : MonoBehaviour
         {
             ray = cam.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out hit))
+            int layerMask = 1 << LayerMask.NameToLayer("ground") | 1 << LayerMask.NameToLayer("object");
+
+            if (Physics.Raycast(ray, out hit, 100f, layerMask)) 
                 return hit.point;
 
             return Vector3.zero;
@@ -87,35 +87,39 @@ public class MouseController : MonoBehaviour
 
     public static float GetRadius { get; private set; }
 
-    void Visualize(Vector3 origin ,Vector3 vo)
-    {
-        for(int i = 0; i < lineSegment; i++)
-        {
-            Vector3 pos = Parabola.CalculatePosInTime(origin, vo, i / (float)lineSegment);
-            lineVisual.SetPosition(i, pos);
-        }
-    }
-
     #region Circle
     void CircleActive()
     {
-        circle.transform.position = GetHit;
+        cylinder.transform.position = GetHit;
 
-        if (GetRadius > 5.4f) return;
+        if (cylinder.transform.localScale.y > 1.99f) return;
 
-        circle.SetActive(true);
-        GetRadius = Mathf.Lerp(GetRadius, 5.5f, Time.deltaTime * 3f);
-        float diameter = GetRadius * 2;
-        circle.transform.localScale = Vector3.one * diameter;
+        if(!cylinder.activeSelf)
+        {
+            cylinder.SetActive(true);
+            upParticle.SetActive(true);
+            dwParticle.SetActive(true);
+        }
+
+        cylinder.transform.localScale = Vector3.Lerp(cylinder.transform.localScale, cylinderEndScale, Time.deltaTime * 5f);
+        upParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
+        dwParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
     }
 
     void CircleDeActive()
     {
-        if (!circle.activeSelf) return;
+        if (!cylinder.activeSelf) return;
 
-        circle.transform.localScale = Vector3.zero;
-        GetRadius = 0;
-        circle.SetActive(false);
+        cylinder.transform.localScale = Vector3.Lerp(cylinder.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
+        upParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
+        dwParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
+
+        if (cylinder.transform.localScale.y < 0.1f)
+        {
+            cylinder.SetActive(false);
+            upParticle.SetActive(false);
+            dwParticle.SetActive(false);
+        }
     }
     #endregion
 }

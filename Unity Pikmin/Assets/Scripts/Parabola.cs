@@ -24,17 +24,4 @@ public class Parabola : MonoBehaviour
 
         return result;
     }
-
-    public static Vector3 CalculatePosInTime(Vector3 origin, Vector3 vo, float time)
-    {
-        Vector3 Vxz = vo;
-        Vxz.y = 0f;
-
-        Vector3 result = origin + vo * time;
-        float sY = (-0.5f * Mathf.Abs(Physics.gravity.y) * (time * time)) + (vo.y * time) + origin.y;
-
-        result.y = sY;
-
-        return result;
-    }
 }

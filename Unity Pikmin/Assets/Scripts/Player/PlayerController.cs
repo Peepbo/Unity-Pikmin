@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour, ICollider
         anim = transform.GetComponentInChildren<Animator>();
         state = PlayerState.Idle;
         FootPos = transform.GetChild(2).transform;
+        UserTransform = transform;
     }
 
     private void Start()
@@ -76,6 +77,11 @@ public class PlayerController : MonoBehaviour, ICollider
     private void Update()
     {
         Animation();
+
+        if(Input.GetKeyDown(KeyCode.Backspace))
+        {
+            if (removable == null) return;
+        }
     }
 
     private void Animation()
@@ -268,4 +274,5 @@ public class PlayerController : MonoBehaviour, ICollider
 
     //public static Transform GetPos { get; private set; }
     public static Transform FootPos { get; private set; }
+    public static Transform UserTransform { get; private set; }
 }
