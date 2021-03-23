@@ -7,13 +7,13 @@ public class PlayerController : MonoBehaviour, ICollider
 {
     public enum PlayerState   {Idle,Walk,ThrowReady,ThrowAction}
 
-    public PlayerState        state;
-    public int                myPikminCount;
-    public GameObject         myHand;
+    public  PlayerState        state;
+    public  int                myPikminCount;
+    public  GameObject         myHand;
 
     private Animator          anim;
     private Vector3           throwPos;
-    public Removable          removable;
+    public  Removable          removable;
     private Vector3           direction;
 
     private Action            idleAct, walkAct, throw0Act, throw1Act;
@@ -131,8 +131,8 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         if (Input.GetMouseButton(0))
         {
-            Vector3 _point = MouseController.GetHit;
-            float _radius = MouseController.GetRadius;
+            Vector3 _point = MouseController.instance.GetHit;
+            float _radius = MouseController.instance.GetRadius;
 
             if (_point != Vector3.zero)
             {
@@ -161,7 +161,7 @@ public class PlayerController : MonoBehaviour, ICollider
         {
             if(myHand.transform.childCount > 0)
             {
-                Vector3 mouseHit = MouseController.GetHit;
+                Vector3 mouseHit = MouseController.instance.GetHit;
                 mouseHit.y = transform.position.y;
 
                 transform.LookAt(mouseHit);
@@ -174,8 +174,8 @@ public class PlayerController : MonoBehaviour, ICollider
         {
             if (myHand.transform.childCount > 0)
             {
-                throwPos = MouseController.GetHit;
-                removable = MouseController.GetRemovableHit;
+                throwPos = MouseController.instance.GetHit;
+                removable = MouseController.instance.GetRemovableHit;
 
                 state = PlayerState.ThrowAction;
             }

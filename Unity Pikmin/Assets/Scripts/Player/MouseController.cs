@@ -1,68 +1,80 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MouseController : MonoBehaviour
 {
-    //public
-    public GameObject cursor3D;
+    //Singleton Class
+    public static MouseController instance;
     
-    public GameObject cylinder;
-    public GameObject upParticle;
-    public GameObject dwParticle;
+    [Header("Cursor")]
+    public Transform     cursor3D;
+    
+    [Header("Whistle")]
+    public GameObject    cylinder;
+    public GameObject    topParticle;
+    public GameObject    bottomParticle;
+    public Transform     radiusPivot;
 
-    private Vector3 cylinderEndScale = new Vector3(7f, 2f, 7f);
-    private Vector3 particleEndScale = new Vector3(1.43f, 1.43f, 1.43f);
+    private Vector3      cylinderEndScale = new Vector3(7f, 2f, 7f);
+    private Vector3      particleEndScale = new Vector3(1.43f, 1.43f, 1.43f);
+    private LineRenderer lineVisual;
 
-    public LineRenderer lineVisual; 
+    [Header("Player Hand")]
+    public Transform     handPos;
 
-    //private
-    public Transform handPos;
+    private Camera       cam;
+    private RaycastHit   hit;
+    private Ray          ray;
+    private int          layerMask;
 
-    //static
-    private static Camera cam;
-    private static RaycastHit hit;
-    private static Ray ray;
+    private void Awake() => lineVisual = GetComponent<LineRenderer>();
 
     // Start is called before the first frame update
     void Start()
     {
-        cursor3D.SetActive(true);
+        instance = this;
+
+        cursor3D.gameObject.SetActive(true);
         cam = Camera.main;
         GetRadius = 0;
-        //circleUp.transform.position = circleDown.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        cursor3D.transform.position = GetHit;
+        cursor3D.position = GetHit;
 
         if (Input.GetMouseButton(0))
-            CircleActive();
+        {
+            PlayWhistle();
+        }
         else
-            CircleDeActive();
+        {
+            StopWhistle();
+        }
+
+        if (cylinder.activeSelf)
+        {
+            GetRadius = (cursor3D.position - radiusPivot.position).magnitude;
+            cylinder.transform.position = GetHit;
+        }
+        else
+        {
+            GetRadius = 0;
+        }
 
         lineVisual.SetPosition(0, PlayerController.UserTransform.position);
         lineVisual.SetPosition(1, GetHit);
-
-        if(GetRemovableHit != null)
-        {
-            if(Input.mouseScrollDelta.y > 0)
-                GetRemovableHit.TextNum++;
-
-            if (Input.mouseScrollDelta.y < 0)
-                GetRemovableHit.TextNum--;
-        }
     }
 
-    public static Vector3 GetHit
+    #region Hit
+    //마우스가 가리키고 있는 곳을 반환한다.
+    public Vector3 GetHit
     {
         get
         {
             ray = cam.ScreenPointToRay(Input.mousePosition);
 
-            int layerMask = 1 << LayerMask.NameToLayer("ground") | 1 << LayerMask.NameToLayer("object");
+            layerMask = 1 << LayerMask.NameToLayer("ground") | 1 << LayerMask.NameToLayer("object");
 
             if (Physics.Raycast(ray, out hit, 100f, layerMask)) 
                 return hit.point;
@@ -71,54 +83,57 @@ public class MouseController : MonoBehaviour
         }
     }
 
-    public static Removable GetRemovableHit
+    //마우스가 가리키고 있는 곳 중 (옮길 수 있는)물체의 스크립트를 반환한다.
+    public Removable GetRemovableHit
     {
         get
         {
             ray = cam.ScreenPointToRay(Input.mousePosition);
-            if(Physics.Raycast(ray, out hit))
-            {
-                if(hit.transform.CompareTag("Object")) 
-                    return hit.transform.GetComponent<Removable>();
-            }
+
+            layerMask = 1 << LayerMask.NameToLayer("object");
+
+            if(Physics.Raycast(ray, out hit, 100f, layerMask))
+                return hit.transform.GetComponent<Removable>();
+
             return null;
         }
     }
+    #endregion
 
-    public static float GetRadius { get; private set; }
+    public float GetRadius { get; private set; }
 
-    #region Circle
-    void CircleActive()
+    #region Whistle
+    void PlayWhistle()
     {
-        cylinder.transform.position = GetHit;
-
         if (cylinder.transform.localScale.y > 1.99f) return;
 
         if(!cylinder.activeSelf)
         {
             cylinder.SetActive(true);
-            upParticle.SetActive(true);
-            dwParticle.SetActive(true);
+            topParticle.SetActive(true);
+            bottomParticle.SetActive(true);
         }
 
         cylinder.transform.localScale = Vector3.Lerp(cylinder.transform.localScale, cylinderEndScale, Time.deltaTime * 5f);
-        upParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
-        dwParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
+
+        topParticle.transform.localScale = bottomParticle.transform.localScale =
+            Vector3.Lerp(topParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
     }
 
-    void CircleDeActive()
+    void StopWhistle()
     {
         if (!cylinder.activeSelf) return;
 
         cylinder.transform.localScale = Vector3.Lerp(cylinder.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
-        upParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
-        dwParticle.transform.localScale = Vector3.Lerp(upParticle.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
+
+        topParticle.transform.localScale = bottomParticle.transform.localScale =
+            Vector3.Lerp(topParticle.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
 
         if (cylinder.transform.localScale.y < 0.1f)
         {
             cylinder.SetActive(false);
-            upParticle.SetActive(false);
-            dwParticle.SetActive(false);
+            topParticle.SetActive(false);
+            bottomParticle.SetActive(false);
         }
     }
     #endregion
