@@ -7,16 +7,15 @@ public class MouseController : MonoBehaviour
     
     [Header("Cursor")]
     public Transform     cursor3D;
-    
-    [Header("Whistle")]
-    public GameObject    cylinder;
-    public GameObject    topParticle;
-    public GameObject    bottomParticle;
-    public Transform     radiusPivot;
 
-    private Vector3      cylinderEndScale = new Vector3(7f, 2f, 7f);
-    private Vector3      particleEndScale = new Vector3(1.43f, 1.43f, 1.43f);
+    [Header("Whistle")]
+    public  Whistle      whistle;
+
+    private Vector3      lastPosition;
     private LineRenderer lineVisual;
+
+    [Header("Object Info")]
+    public ObjectInfo    objectInfo;
 
     [Header("Player Hand")]
     public Transform     handPos;
@@ -29,44 +28,44 @@ public class MouseController : MonoBehaviour
     private void Awake() => lineVisual = GetComponent<LineRenderer>();
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         instance = this;
 
         cursor3D.gameObject.SetActive(true);
         cam = Camera.main;
-        GetRadius = 0;
+        lastPosition = PlayerController.FootPos.position;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         cursor3D.position = GetHit;
 
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0)) whistle.Play();
+        else whistle.Stop();
+
+        //circleVisual
+        var scriptInfo = GetRemovableHit();
+
+        if (scriptInfo != null)
         {
-            PlayWhistle();
+            objectInfo.Show(scriptInfo.transform.position);
         }
         else
         {
-            StopWhistle();
+            objectInfo.Hide();
         }
 
-        if (cylinder.activeSelf)
-        {
-            GetRadius = (cursor3D.position - radiusPivot.position).magnitude;
-            cylinder.transform.position = GetHit;
-        }
-        else
-        {
-            GetRadius = 0;
-        }
+        UpdateLine();
+    }
 
+    private void UpdateLine()
+    {
         lineVisual.SetPosition(0, PlayerController.UserTransform.position);
         lineVisual.SetPosition(1, GetHit);
     }
 
-    #region Hit
     //마우스가 가리키고 있는 곳을 반환한다.
     public Vector3 GetHit
     {
@@ -77,64 +76,25 @@ public class MouseController : MonoBehaviour
             layerMask = 1 << LayerMask.NameToLayer("ground") | 1 << LayerMask.NameToLayer("object");
 
             if (Physics.Raycast(ray, out hit, 100f, layerMask)) 
-                return hit.point;
+            {
+                lastPosition = hit.point;
+                return  hit.point;
+            }
 
-            return Vector3.zero;
+            return lastPosition;
         }
     }
 
     //마우스가 가리키고 있는 곳 중 (옮길 수 있는)물체의 스크립트를 반환한다.
-    public Removable GetRemovableHit
+    private Removable GetRemovableHit()
     {
-        get
-        {
-            ray = cam.ScreenPointToRay(Input.mousePosition);
+        ray = cam.ScreenPointToRay(Input.mousePosition);
 
-            layerMask = 1 << LayerMask.NameToLayer("object");
+        layerMask = 1 << LayerMask.NameToLayer("object");
 
-            if(Physics.Raycast(ray, out hit, 100f, layerMask))
-                return hit.transform.GetComponent<Removable>();
+        if (Physics.Raycast(ray, out hit, 100f, layerMask))
+            return hit.transform.GetComponent<Removable>();
 
-            return null;
-        }
+        return null;
     }
-    #endregion
-
-    public float GetRadius { get; private set; }
-
-    #region Whistle
-    void PlayWhistle()
-    {
-        if (cylinder.transform.localScale.y > 1.99f) return;
-
-        if(!cylinder.activeSelf)
-        {
-            cylinder.SetActive(true);
-            topParticle.SetActive(true);
-            bottomParticle.SetActive(true);
-        }
-
-        cylinder.transform.localScale = Vector3.Lerp(cylinder.transform.localScale, cylinderEndScale, Time.deltaTime * 5f);
-
-        topParticle.transform.localScale = bottomParticle.transform.localScale =
-            Vector3.Lerp(topParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
-    }
-
-    void StopWhistle()
-    {
-        if (!cylinder.activeSelf) return;
-
-        cylinder.transform.localScale = Vector3.Lerp(cylinder.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
-
-        topParticle.transform.localScale = bottomParticle.transform.localScale =
-            Vector3.Lerp(topParticle.transform.localScale, Vector3.zero, Time.deltaTime * 8f);
-
-        if (cylinder.transform.localScale.y < 0.1f)
-        {
-            cylinder.SetActive(false);
-            topParticle.SetActive(false);
-            bottomParticle.SetActive(false);
-        }
-    }
-    #endregion
 }
