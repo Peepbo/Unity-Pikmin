@@ -14,6 +14,7 @@ public class Pikmin : MonoBehaviour, ICollider
     private Transform        followTarget;
     private NavMeshAgent     agent;
     private Rigidbody        rigid;
+    private Removable        removable;
 
     private Animator         anim;
 
@@ -48,7 +49,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Stay()
     {
-        //agent.enabled = false;
+        agent.enabled = false;
 
         if (followTarget != null)
         {
@@ -77,31 +78,20 @@ public class Pikmin : MonoBehaviour, ICollider
             agent.enabled = true;
             rigid.isKinematic = true;
 
-            Collider[] cols = Physics.OverlapSphere(transform.position, 2);
-
-            bool flag = true;
-
-            foreach (var col in cols)
+            if(removable != null)
             {
-                if (col.CompareTag("Object"))
-                {
-                    isDelivery = true;
+                isDelivery = true;
 
-                    col.GetComponent<Removable>().Arrangement(transform);
-                    agent.stoppingDistance = 0.2f;
-                    state = PikminState.FOLLOW;
-                    flag = false;
-                    break;
-                }
+                removable.Arrangement(transform);
+                agent.stoppingDistance = 0.2f;
+                state = PikminState.FOLLOW;
             }
 
-            if (flag)
+            else
             {
                 followTarget = null;
                 state = PikminState.STAY;
             }
-
-            transform.rotation = Quaternion.identity;
         }
     }
 
@@ -152,8 +142,10 @@ public class Pikmin : MonoBehaviour, ICollider
         agent.enabled = false;
     }
 
-    public void FlyPikmin (Vector3 startPos, Vector3 endPos)
+    public void FlyPikmin (Vector3 startPos, Vector3 endPos, Removable removableScript)
     {
+        removable = removableScript;
+
         Vector3 _parabola = Parabola.CalculateVelocity(endPos, startPos, 1.5f);
         transform.rotation = Quaternion.identity;
         rigid.isKinematic = false;

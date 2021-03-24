@@ -7,13 +7,12 @@ public class PlayerController : MonoBehaviour, ICollider
 {
     public enum PlayerState   {Idle,Walk,ThrowReady,ThrowAction}
 
-    public  PlayerState        state;
-    public  int                myPikminCount;
-    public  GameObject         myHand;
+    public  PlayerState       state;
+    public  int               myPikminCount;
+    public  GameObject        myHand;
 
     private Animator          anim;
     private Vector3           throwPos;
-    public  Removable          removable;
     private Vector3           direction;
 
     private Action            idleAct, walkAct, throw0Act, throw1Act;
@@ -77,11 +76,6 @@ public class PlayerController : MonoBehaviour, ICollider
     private void Update()
     {
         Animation();
-
-        if(Input.GetKeyDown(KeyCode.Backspace))
-        {
-            if (removable == null) return;
-        }
     }
 
     private void Animation()
@@ -132,7 +126,7 @@ public class PlayerController : MonoBehaviour, ICollider
         if (Input.GetMouseButton(0))
         {
             Vector3 _point = MouseController.instance.GetHit;
-            float _radius = MouseController.instance.GetRadius;
+            float _radius = MouseController.instance.whistle.GetRadius;
 
             if (_point != Vector3.zero)
             {
@@ -175,7 +169,7 @@ public class PlayerController : MonoBehaviour, ICollider
             if (myHand.transform.childCount > 0)
             {
                 throwPos = MouseController.instance.GetHit;
-                removable = MouseController.instance.GetRemovableHit;
+                //removable = MouseController.instance.GetRemovableHit;
 
                 state = PlayerState.ThrowAction;
             }
@@ -226,10 +220,21 @@ public class PlayerController : MonoBehaviour, ICollider
 
         Pikmin pik = myHand.GetComponentInChildren<Pikmin>();
 
-        if(removable == null)
-            pik.FlyPikmin(myHand.transform.position, throwPos);
-        else
-            pik.FlyPikmin(myHand.transform.position, removable.ThrowPos());
+        //throwPow
+        Collider[] _cols = Physics.OverlapSphere(throwPos, 2f);
+
+        Removable _removable = null;
+        foreach (Collider col in _cols)
+        {
+            if (col.CompareTag("Object"))
+            {
+                _removable = col.GetComponent<Removable>();
+                throwPos = _removable.ThrowPos();
+                break;
+            }
+        }
+
+        pik.FlyPikmin(myHand.transform.position, throwPos, _removable);
     }
 
     public void ChangeState(PlayerState _state) { state = _state; }
