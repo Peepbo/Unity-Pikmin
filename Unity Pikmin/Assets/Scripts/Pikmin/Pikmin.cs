@@ -9,6 +9,8 @@ public enum PikminState {STAY, FOLLOW, ATTACK, FLY}
 
 public class Pikmin : MonoBehaviour, ICollider
 {
+    public  GameObject       leefParticle0, leefParticle1;
+
     public  PikminState      state;
     private Vector3          flyTarget;
     private Transform        followTarget;
@@ -37,11 +39,20 @@ public class Pikmin : MonoBehaviour, ICollider
         {
             Stay();
             anim.SetInteger("animation", 1);
+
+            if(!followTarget)
+            {
+                leefParticle0.SetActive(true);
+                leefParticle1.SetActive(true);
+            }
         };
         followAct = () =>
         {
             Move();
             anim.SetInteger("animation", 2);
+
+            leefParticle0.SetActive(false);
+            leefParticle1.SetActive(false);
         };
         flyAct    = () => Fly();
         attackAct = () => { };
