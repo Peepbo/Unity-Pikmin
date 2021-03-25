@@ -24,6 +24,11 @@ public class PlayerController : MonoBehaviour, ICollider
         state = PlayerState.Idle;
         FootPos = transform.GetChild(2).transform;
         UserTransform = transform;
+
+        var charAnim = transform.GetChild(0).GetComponent<AnimSetting>();
+
+        charAnim.actions.Add("Idle", () => ChangeState(PlayerState.Idle));
+        charAnim.actions.Add("Throw", () => ThrowPik());
     }
 
     private void Start()

@@ -25027,8 +25027,8 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.48333332
-    functionName: ThrowAnim
-    data: 
+    functionName: PlayAct
+    data: Throw
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

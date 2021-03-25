@@ -1,23 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AnimSetting : MonoBehaviour
 {
-    PlayerController controller;
-
-    private void Awake()
-    {
-        controller = transform.parent.GetComponent<PlayerController>();
-    }
-
-    public void ChangeAnim()
-    {
-        controller.ChangeState(PlayerController.PlayerState.Idle);
-    }
-
-    public void ThrowAnim()
-    {
-        controller.ThrowPik();
-    }
+    public Dictionary<string, Action> actions = new Dictionary<string, Action>();
+    public void PlayAct(string name) => actions[name]();
 }

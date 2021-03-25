@@ -29,6 +29,9 @@ public class Pikmin : MonoBehaviour, ICollider
         rigid = GetComponent<Rigidbody>();
         anim  = transform.GetChild(0).GetComponent<Animator>();
         state = PikminState.STAY;
+
+        var charAnim = transform.GetChild(0).GetComponent<AnimSetting>();
+        charAnim.actions.Add("Attack", () => Debug.Log("hit"));
     }
 
     private void Start() => SetAction();
@@ -55,7 +58,10 @@ public class Pikmin : MonoBehaviour, ICollider
             leefParticle1.SetActive(false);
         };
         flyAct    = () => Fly();
-        attackAct = () => { };
+        attackAct = () => 
+        {
+            anim.SetInteger("animation", 3);
+        };
     }
 
     private void Stay()
@@ -158,7 +164,7 @@ public class Pikmin : MonoBehaviour, ICollider
         removable = removableScript;
 
         Vector3 _parabola = Parabola.CalculateVelocity(endPos, startPos, 1.5f);
-        transform.rotation = Quaternion.identity;
+        //transform.rotation = Quaternion.identity;
         rigid.isKinematic = false;
         rigid.velocity = _parabola;
 
@@ -168,6 +174,12 @@ public class Pikmin : MonoBehaviour, ICollider
 
         rigid.useGravity = true;
         agent.enabled = false;
+
+        Vector3 temp0 = flyTarget;
+        Vector3 temp1 = transform.position;
+        temp0.y = temp1.y = 0;
+
+        transform.LookAt(flyTarget);
         StartCoroutine(RotateMe(1.5f));
     }
 
