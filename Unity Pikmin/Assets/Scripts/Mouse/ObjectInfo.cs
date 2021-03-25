@@ -10,20 +10,46 @@ public class ObjectInfo : MonoBehaviour
 
     private void Start() => cameraTransform = Camera.main.transform;
 
-    private void LookCamera() => transform.LookAt(cameraTransform);
+    private void LookCamera() => sprite.LookAt(cameraTransform);
 
-    public void Show(Vector3 ObjectPos)
+    public void Checker(Removable script)
     {
         LookCamera();
 
-        sprite.position = ObjectPos;
+        if (script != null)
+        {
+            Show(script);
+            ChangeValue(script);
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    private void Show(Removable script)
+    {
+        sprite.position = script.transform.position;
         sprite.localScale = Vector3.Lerp(sprite.localScale, endSize, Time.deltaTime * 5f);
     }
 
-    public void Hide()
+    private void ChangeValue(Removable script)
     {
-        LookCamera();
+        switch (MouseController.instance.GetWheel())
+        {
+            case MouseWheel.STAY:
+                return;
+            case MouseWheel.UP:
+                script.TextNum++;
+                break;
+            case MouseWheel.DOWN:
+                script.TextNum--;
+                break;
+        }
+    }
 
+    private void Hide()
+    {
         sprite.localScale = Vector3.Lerp(sprite.localScale, Vector3.zero, Time.deltaTime * 9f);
     }
 }

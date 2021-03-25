@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+public enum MouseWheel{ UP,STAY,DOWN }
+
 public class MouseController : MonoBehaviour
 {
     //Singleton Class
@@ -42,20 +44,9 @@ public class MouseController : MonoBehaviour
     {
         cursor3D.position = GetHit;
 
-        if (Input.GetMouseButton(0)) whistle.Play();
-        else whistle.Stop();
+        whistle.Checker(Input.GetMouseButton(0));
 
-        //circleVisual
-        var scriptInfo = GetRemovableHit();
-
-        if (scriptInfo != null)
-        {
-            objectInfo.Show(scriptInfo.transform.position);
-        }
-        else
-        {
-            objectInfo.Hide();
-        }
+        objectInfo.Checker(GetRemovableHit());
 
         UpdateLine();
     }
@@ -96,5 +87,13 @@ public class MouseController : MonoBehaviour
             return hit.transform.GetComponent<Removable>();
 
         return null;
+    }
+
+    public MouseWheel GetWheel()
+    {
+        if (Input.mouseScrollDelta.y == 0) return MouseWheel.STAY;
+        if (Input.mouseScrollDelta.y > 0) return MouseWheel.UP;
+        
+        return MouseWheel.DOWN;
     }
 }

@@ -22,7 +22,19 @@ public class Whistle : MonoBehaviour
         GetRadius = 0;
     }
 
-    public void Play()
+    public void Checker(bool condition)
+    {
+        if(condition)
+        {
+            Play();
+        }
+        else
+        {
+            Stop();
+        }
+    }
+
+    private void Play()
     {
         cylinder.transform.position = MouseController.instance.GetHit;
 
@@ -43,11 +55,11 @@ public class Whistle : MonoBehaviour
             Vector3.Lerp(topParticle.transform.localScale, particleEndScale, Time.deltaTime * 5f);
     }
 
-    public void Stop()
+    private void Stop()
     {
         if (!cylinder.activeSelf) return;
 
-        transform.position = MouseController.instance.GetHit;
+        cylinder.transform.position = MouseController.instance.GetHit;
 
         GetRadius = (MouseController.instance.cursor3D.position - radiusPivot.position).magnitude;
 
