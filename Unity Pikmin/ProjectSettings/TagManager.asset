@@ -8,6 +8,7 @@ TagManager:
   - Object
   - Collider
   - Enemy
+  - Floor
   layers:
   - Default
   - TransparentFX

@@ -74,7 +74,7 @@ Material:
     - _ProjectionAngleDiscardThreshold: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SrcBlend: 2
+    - _SrcBlend: 1
     - _StencilComp: 0
     - _StencilRef: 0
     - _SupportOrthographicCamera: 0

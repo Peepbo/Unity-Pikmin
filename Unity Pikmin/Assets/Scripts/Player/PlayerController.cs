@@ -137,9 +137,12 @@ public class PlayerController : MonoBehaviour, ICollider
             {
                 foreach (Pikmin pik in pikmins)
                 {
-                    if (Vector3.Distance(pik.transform.position, _point) < _radius)
+                    Vector3 temp = pik.transform.position;
+                    temp.y = 0;
+
+                    if (Vector3.Distance(temp, _point) < _radius)
                     {
-                        if(pik.state < (PikminState)2 && pik.PikminTarget != transform)
+                        if (pik.state < (PikminState)3 && pik.PikminTarget != transform)
                         {
                             pik.Init();
                             pik.PikminTarget = transform;
