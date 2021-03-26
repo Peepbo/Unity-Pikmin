@@ -5,6 +5,7 @@ using System;
 
 public class AnimSetting : MonoBehaviour
 {
-    public Dictionary<string, Action> actions = new Dictionary<string, Action>();
-    public void PlayAct(string name) => actions[name]();
+    private Dictionary<string, Action> actions = new Dictionary<string, Action>();
+    public void PlayAct(string functionName) => actions[functionName]();
+    public void AddAct(string functionName, Action action) => actions.Add(functionName, action);
 }

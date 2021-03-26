@@ -16,7 +16,7 @@ public class test : MonoBehaviour
             while (factory.childCount > 0)
             {
                 var pikmin = factory.GetChild(0).GetComponent<Pikmin>();
-                pikmin.state = PikminState.STAY;
+                //pikmin.state = PikminState.STAY;
                 pikmin.testScript = null;
                 pikmin.transform.rotation = Quaternion.identity;
                 pikmin.Init();
@@ -29,8 +29,11 @@ public class test : MonoBehaviour
 
         foreach (Collider col in cols)
         {
+            Debug.Log(col.name);
             if (col.CompareTag("Pikmin"))
             {
+                Debug.Log("in");
+
                 var script = col.GetComponent<Pikmin>();
                 script.PikminTarget = null;
                 script.transform.parent = factory;

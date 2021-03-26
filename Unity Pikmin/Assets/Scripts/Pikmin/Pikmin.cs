@@ -17,11 +17,12 @@ public class Pikmin : MonoBehaviour, ICollider
     private NavMeshAgent     agent;
     private Rigidbody        rigid;
     private Removable        removable;
+    private CapsuleCollider  col;
 
     private Animator         anim;
 
     private Action           stayAct, followAct, flyAct, attackAct;
-    private bool             isDelivery;
+    private bool             isDelivery, isJump;
 
     //
     public test testScript;
@@ -30,15 +31,13 @@ public class Pikmin : MonoBehaviour, ICollider
     {
         agent = GetComponent<NavMeshAgent>();
         rigid = GetComponent<Rigidbody>();
+        col = GetComponent<CapsuleCollider>();
         anim = transform.GetChild(0).GetComponent<Animator>();
         state = PikminState.STAY;
 
         var charAnim = transform.GetChild(0).GetComponent<AnimSetting>();
-        charAnim.actions.Add("Attack", () => 
-        {
-            Debug.Log("Hit!");
-            if (testScript != null) testScript.hp--;
-        }); 
+
+        charAnim.AddAct("Attack", () => { if (testScript != null) testScript.hp--; });
     }
 
     private void Start() => SetAction();
@@ -67,33 +66,18 @@ public class Pikmin : MonoBehaviour, ICollider
         flyAct    = () => Fly();
         attackAct = () => 
         {
+            Attack();
             anim.SetInteger("animation", 3);
-            //Attack()
         };
+    }
+
+    private void JumpCheck()
+    { 
+
     }
 
     private void Stay()
     {
-        Debug.DrawRay(transform.position, Vector3.down * 0.5f);
-
-        RaycastHit rHit;
-        if (Physics.Raycast(transform.position, Vector3.down, out rHit, 0.5f))
-        {
-            if (rHit.transform.CompareTag("Floor"))
-            {
-                Debug.Log("hit floor!");
-                rigid.useGravity = false;
-                rigid.velocity = Vector3.zero;
-                rigid.isKinematic = true;
-            }
-        }
-        else
-        {
-            agent.enabled = false;
-            rigid.useGravity = true;
-            return;
-        }
-
         agent.enabled = false;
 
         if (followTarget != null)
@@ -107,20 +91,18 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Move()
     {
-        Debug.DrawRay(transform.position, Vector3.down * 0.5f);
+        //RaycastHit rayHit;
 
-        RaycastHit rHit;
-        if (Physics.Raycast(transform.position, Vector3.down, out rHit, 0.5f))
-        {
-            if (rHit.transform.CompareTag("Floor"))
-                rigid.useGravity = false;
-        }
-        else
-        {
-            agent.enabled = false;
-            rigid.useGravity = true;
-            return;
-        }
+        //if(!Physics.Raycast(transform.position,Vector3.down, out rayHit, 0.5f))
+        //{
+        //    rigid.useGravity = true;
+        //    rigid.isKinematic = false;
+        //}
+        //else if(rayHit.transform.CompareTag("Floor"))
+        //{
+        //    rigid.useGravity = false;
+        //    rigid.isKinematic = true;
+        //}
 
         agent.enabled = true;
         agent.SetDestination(followTarget.position);
@@ -133,6 +115,20 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Fly()
     {
+        col.enabled = true;
+        RaycastHit rayHit;
+        if (Physics.Raycast(transform.position, Vector3.down, out rayHit, 0.5f))
+        {
+            if (rayHit.transform.CompareTag("Floor"))
+            {
+                col.enabled = true;
+                rigid.velocity = Vector3.zero;
+                rigid.useGravity = false;
+                rigid.isKinematic = true;
+                state = PikminState.STAY;
+            }
+        }
+
         if (Vector3.Distance(transform.position, flyTarget) < 0.5f)
         {
             agent.enabled = true;
@@ -151,6 +147,26 @@ public class Pikmin : MonoBehaviour, ICollider
             {
                 followTarget = null;
                 state = PikminState.STAY;
+            }
+        }
+    }
+
+    private void Attack()
+    {
+        if (testScript == null)
+        {
+            rigid.useGravity = true;
+
+            RaycastHit rayHit;
+            if (Physics.Raycast(transform.position, Vector3.down, out rayHit, 0.5f))
+            {
+                if (rayHit.transform.CompareTag("Floor"))
+                {
+                    rigid.velocity = Vector3.zero;
+                    rigid.useGravity = false;
+                    rigid.isKinematic = true;
+                    state = PikminState.STAY;
+                }
             }
         }
     }
@@ -250,6 +266,18 @@ public class Pikmin : MonoBehaviour, ICollider
 
         transform.rotation = startRot;
         rigid.velocity = Vector3.zero;
+    }
+
+    public void AttackPikmin(test enemy)
+    {
+        StopAllCoroutines();
+        PikminTarget = null;
+        transform.parent = enemy.transform;
+        state = PikminState.ATTACK;
+        testScript = enemy;
+        rigid.useGravity = false;
+        rigid.velocity = Vector3.zero;
+        transform.LookAt(transform);
     }
 
     public Transform PikminTarget

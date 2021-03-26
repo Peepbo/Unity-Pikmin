@@ -27,8 +27,8 @@ public class PlayerController : MonoBehaviour, ICollider
 
         var charAnim = transform.GetChild(0).GetComponent<AnimSetting>();
 
-        charAnim.actions.Add("Idle", () => ChangeState(PlayerState.Idle));
-        charAnim.actions.Add("Throw", () => ThrowPik());
+        charAnim.AddAct("Idle", () => state = PlayerState.Idle);
+        charAnim.AddAct("Throw", ThrowPik);
     }
 
     private void Start()
@@ -145,6 +145,7 @@ public class PlayerController : MonoBehaviour, ICollider
                         if (pik.state < (PikminState)3 && pik.PikminTarget != transform)
                         {
                             pik.Init();
+                            pik.testScript = null;
                             pik.PikminTarget = transform;
                             pik.state = PikminState.FOLLOW;
                             myPikminCount++;

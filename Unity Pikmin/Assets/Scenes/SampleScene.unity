@@ -9902,7 +9902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 10
-  cubeSize: {x: 1.4, y: 3.23, z: 5.54}
+  cubeSize: {x: 1.13, y: 2.41, z: 5.18}
   center: {x: 0, y: 0.23, z: 0}
   factory: {fileID: 805917761}
 --- !u!4 &243895134
@@ -26273,7 +26273,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1269431730
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -26282,7 +26282,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1269431729}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
   m_Height: 2
@@ -26427,7 +26427,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1296375119
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -26436,7 +26436,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1296375118}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
   m_Height: 2
