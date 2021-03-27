@@ -15,36 +15,32 @@ public class test : MonoBehaviour
         {
             while (factory.childCount > 0)
             {
-                var pikmin = factory.GetChild(0).GetComponent<Pikmin>();
-                //pikmin.state = PikminState.STAY;
-                pikmin.testScript = null;
-                pikmin.transform.rotation = Quaternion.identity;
-                pikmin.Init();
+                factory.GetChild(0).GetComponent<Pikmin>().Init();
             }
 
             return;
         }
 
-        Collider[] cols = Physics.OverlapBox(transform.position + center, cubeSize);
+        Collider[] cols = Physics.OverlapBox(transform.position + center, cubeSize / 2);
 
         foreach (Collider col in cols)
         {
-            Debug.Log(col.name);
-            if (col.CompareTag("Pikmin"))
+            if (col.transform.parent == null && col.CompareTag("Pikmin"))
             {
-                Debug.Log("in");
+                if (col.GetComponent<Pikmin>().PikminTarget != null) continue;
+
+                col.transform.position += (transform.position - col.transform.position).normalized * 0.25f;
 
                 var script = col.GetComponent<Pikmin>();
-                script.PikminTarget = null;
                 script.transform.parent = factory;
-                script.state = PikminState.ATTACK;
                 script.StopAllCoroutines();
                 script.testScript = this;
 
                 var rigid = col.GetComponent<Rigidbody>();
-                rigid.useGravity = false;
+                rigid.isKinematic = true;
                 rigid.velocity = Vector3.zero;
                 script.transform.LookAt(transform);
+                script.state = PikminState.ATTACK;
             }
         }
     }
