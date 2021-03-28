@@ -26,6 +26,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
     //
     public test testScript;
+    public Enemy enemyScript;
 
     private void Awake()
     {
@@ -189,6 +190,7 @@ public class Pikmin : MonoBehaviour, ICollider
     public void Init()
     {
         testScript = null;
+        enemyScript = null;
         transform.rotation = Quaternion.identity;
 
         if (transform.parent != null)
