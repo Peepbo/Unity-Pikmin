@@ -4,29 +4,20 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    private bool isDie;
     public int hp;
     public Vector3 cubeSize;
     public Vector3 center;
     public Transform factory;
 
-    //03/29 create custom overlap collider
-    //List<GameObject> colliders;
-    //colliderType box? sphere? 
-    //size, position
-
     // Update is called once per frame
     void Update()
     {
-        if (hp <= 0)
-        {
-            while (factory.childCount > 0)
-            {
-                factory.GetChild(0).GetComponent<Pikmin>().Init();
-            }
+        if(!isDie) Stick();
+    }
 
-            return;
-        }
-
+    public void Stick()
+    {
         Collider[] cols = Physics.OverlapBox(transform.position + center, cubeSize / 2);
 
         foreach (Collider col in cols)
@@ -36,17 +27,23 @@ public class Enemy : MonoBehaviour
                 if (col.GetComponent<Pikmin>().PikminTarget != null) continue;
 
                 col.transform.position += (transform.position - col.transform.position).normalized * 0.25f;
+                col.GetComponent<Pikmin>().AttackPikmin(this);
+            }
+        }
+    }
 
-                var script = col.GetComponent<Pikmin>();
-                script.transform.parent = factory;
-                script.StopAllCoroutines();
-                script.enemyScript = this;
+    public void GetDamaged(int value)
+    {
+        if (isDie) return;
 
-                var rigid = col.GetComponent<Rigidbody>();
-                rigid.isKinematic = true;
-                rigid.velocity = Vector3.zero;
-                script.transform.LookAt(transform);
-                script.state = PikminState.ATTACK;
+        hp -= value;
+        if (hp <= 0)
+        {
+            isDie = true;
+
+            while (factory.childCount > 0)
+            {
+                factory.GetChild(0).GetComponent<Pikmin>().Init();
             }
         }
     }

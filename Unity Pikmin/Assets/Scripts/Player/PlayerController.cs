@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour, ICollider
 
         charAnim.AddAct("Idle", () => state = PlayerState.Idle);
         charAnim.AddAct("Throw", ThrowPik);
+        charAnim.AddAct("Catch", CatchPik);
+        charAnim.AddAct("ThrowCheck", CheckThrow);
     }
 
     private void Start()
@@ -51,6 +53,7 @@ public class PlayerController : MonoBehaviour, ICollider
             CatchPikmin();
             LeftButton();
             RightButton();
+            AutoThrow();
             anim.SetFloat("MoveSpeed", 0);
         };
 
@@ -78,10 +81,7 @@ public class PlayerController : MonoBehaviour, ICollider
     }
 
     // Update is called once per frame
-    private void Update()
-    {
-        Animation();
-    }
+    private void Update() => Animation();
 
     private void Animation()
     {
@@ -102,7 +102,6 @@ public class PlayerController : MonoBehaviour, ICollider
         }
     }
 
-    #region Action
     private void Move()
     {
         float h = Input.GetAxisRaw("Horizontal");
@@ -145,9 +144,7 @@ public class PlayerController : MonoBehaviour, ICollider
                         if (pik.state < (PikminState)3 && pik.PikminTarget != transform)
                         {
                             pik.Init();
-                            pik.testScript = null;
                             pik.PikminTarget = transform;
-                            pik.state = PikminState.FOLLOW;
                             myPikminCount++;
                         }
                     }
@@ -178,7 +175,6 @@ public class PlayerController : MonoBehaviour, ICollider
             if (myHand.transform.childCount > 0)
             {
                 throwPos = MouseController.instance.GetHit;
-                //removable = MouseController.instance.GetRemovableHit;
 
                 state = PlayerState.ThrowAction;
             }
@@ -220,9 +216,7 @@ public class PlayerController : MonoBehaviour, ICollider
             }
         }
     }
-    #endregion
 
-    #region Animator
     public void ThrowPik()
     {
         if (myHand.transform.childCount == 0) return;
@@ -247,9 +241,58 @@ public class PlayerController : MonoBehaviour, ICollider
     }
 
     public void ChangeState(PlayerState _state) { state = _state; }
-    #endregion
 
-    //collider
+    public void AutoThrow()
+    {
+        if(Input.GetKeyDown(KeyCode.Backspace))
+        {
+            Vector3 mouseHit = MouseController.instance.GetHit;
+            mouseHit.y = transform.position.y;
+            transform.LookAt(mouseHit);
+
+            throwPos = MouseController.instance.GetHit;
+            anim.SetTrigger("FastThrow");
+        }
+    }
+
+    private void CatchPik()
+    {
+        Pikmin choose = null;
+        float dis = 0.0f;
+
+        foreach (Pikmin pik in pikmins)
+        {
+            if (pik.state == PikminState.FOLLOW || pik.state == PikminState.STAY)
+            {
+                float cmp = (transform.position - pik.transform.position).magnitude;
+
+                if (choose == null)
+                {
+                    choose = pik;
+                    dis = cmp;
+                }
+
+                else if (dis > cmp)
+                {
+                    choose = pik;
+                    dis = cmp;
+                }
+            }
+        }
+
+        if (choose == null) return;
+        choose.PickMe(myHand.transform);
+        myPikminCount--;
+    }
+
+    private void CheckThrow()
+    {
+        if (myPikminCount == 0) return;
+        if (state == PlayerState.Walk) return;
+
+        anim.SetTrigger("FastThrow");
+    }
+
     private bool Collision()
     {
         Collider[] cols = Physics.OverlapSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
@@ -286,7 +329,6 @@ public class PlayerController : MonoBehaviour, ICollider
         transform.Translate(direction * Time.deltaTime);
     }
 
-    //public static Transform GetPos { get; private set; }
     public static Transform FootPos { get; private set; }
     public static Transform UserTransform { get; private set; }
 }

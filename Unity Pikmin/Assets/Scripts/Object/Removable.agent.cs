@@ -42,10 +42,13 @@ partial class Removable
     {
         if (needs <= works)
         {
-            agent.enabled = true;
             if (timer < 3f) timer += Time.deltaTime;
 
-            else agent.SetDestination(Spaceship.instance.pos);
+            else
+            {
+                agent.enabled = true;
+                agent.SetDestination(Spaceship.instance.pos);
+            }
         }
         else
         {

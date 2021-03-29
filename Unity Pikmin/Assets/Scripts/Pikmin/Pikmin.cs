@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-public enum PikminState { STAY, FOLLOW, ATTACK, FLY }
+public enum PikminState { STAY, FOLLOW, ATTACK, FLY, CALL }
 
 public class Pikmin : MonoBehaviour, ICollider
 {
@@ -22,10 +22,8 @@ public class Pikmin : MonoBehaviour, ICollider
     private Animator anim;
 
     private Action stayAct, followAct, flyAct, attackAct;
-    private bool isDelivery, isJump;
+    public bool isDelivery;
 
-    //
-    public test testScript;
     public Enemy enemyScript;
 
     private void Awake()
@@ -38,7 +36,8 @@ public class Pikmin : MonoBehaviour, ICollider
 
         var charAnim = transform.GetChild(0).GetComponent<AnimSetting>();
 
-        charAnim.AddAct("Attack", () => { if (testScript != null) testScript.hp--; });
+        charAnim.AddAct("Attack", () => { if (enemyScript != null) enemyScript.GetDamaged(1); });
+        charAnim.AddAct("Follow", () => state = PikminState.FOLLOW);
     }
 
     private void Start() => SetAction();
@@ -82,12 +81,12 @@ public class Pikmin : MonoBehaviour, ICollider
         };
     }
 
-    private bool CheckGround()
+    public bool CheckGround()
     {
-        Debug.DrawRay(bottomPoint.transform.position, Vector3.down * 0.1f);
+        Debug.DrawRay(bottomPoint.transform.position, Vector3.down * 0.15f);
 
         RaycastHit _hit;
-        if (Physics.Raycast(bottomPoint.transform.position, Vector3.down, out _hit, 0.1f))
+        if (Physics.Raycast(bottomPoint.transform.position, Vector3.down, out _hit, 0.15f))
         {
             if (_hit.transform.CompareTag("Floor"))
             {
@@ -112,9 +111,19 @@ public class Pikmin : MonoBehaviour, ICollider
 
         if (followTarget != null)
         {
-            if (!isDelivery && Vector3.Distance(transform.position, followTarget.position) > 2.0f)
+            if(!isDelivery)
             {
-                state = PikminState.FOLLOW;
+                if(Vector3.Distance(transform.position,followTarget.position) > 2.0f)
+                {
+                    state = PikminState.FOLLOW;
+                }
+            }
+            else
+            {
+                if(transform.parent.parent.GetComponent<NavMeshAgent>().enabled)
+                {
+                    state = PikminState.FOLLOW;
+                }
             }
         }
     }
@@ -122,18 +131,37 @@ public class Pikmin : MonoBehaviour, ICollider
     private void Move()
     {
         col.enabled = false;
-        agent.enabled = true;
+        
         agent.SetDestination(followTarget.position);
 
         if (!isDelivery)
         {
+            agent.enabled = true;
             agent.speed = 3.5f;
             if (Vector3.Distance(transform.position, followTarget.position) < 2.0f)
             {
                 state = PikminState.STAY;
             }
         }
-        else agent.speed = transform.parent.parent.GetComponent<NavMeshAgent>().speed;
+        else
+        {
+            if(Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
+            {
+                agent.enabled = true;
+            }
+
+            else
+            {
+                agent.enabled = false;
+                transform.position = followTarget.transform.position;
+                transform.LookAt(Spaceship.instance.pos);
+
+                if (!removable.GetComponent<NavMeshAgent>().enabled)
+                {
+                    state = PikminState.STAY;
+                }
+            }
+        }
     }
 
     private void Fly()
@@ -159,7 +187,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Attack()
     {
-        if (testScript == null)
+        if (enemyScript == null)
         {
             if (CheckGround()) state = PikminState.STAY;
         }
@@ -184,32 +212,35 @@ public class Pikmin : MonoBehaviour, ICollider
             case PikminState.ATTACK:
                 attackAct();
                 break;
+            case PikminState.CALL:
+                anim.SetInteger("animation", 6);
+                break;
         }
     }
 
     public void Init()
     {
-        testScript = null;
+        if (CheckGround()) state = PikminState.CALL;
+        else state = PikminState.STAY;
+
         enemyScript = null;
         transform.rotation = Quaternion.identity;
+        agent.stoppingDistance = 2f;
 
         if (transform.parent != null)
         {
-            if (transform.parent.parent.CompareTag("Enemy"))
+            switch (state)
             {
-                transform.parent = null;
-            }
-            else
-            {
-                Removable removable = transform.parent.parent.GetComponent<Removable>();
-
-                isDelivery = false;
-                transform.parent = null;
-                removable.FinishWork();
+                case PikminState.FOLLOW:
+                    transform.parent = null;
+                    isDelivery = false;
+                    removable.FinishWork();
+                    break;
+                case PikminState.ATTACK:
+                    transform.parent = null;
+                    break;
             }
         }
-
-        agent.stoppingDistance = 2f;
     }
 
     public void PickMe(Transform parent)
@@ -228,7 +259,7 @@ public class Pikmin : MonoBehaviour, ICollider
         removable = removableScript;
 
         Vector3 _parabola = Parabola.CalculateVelocity(endPos, startPos, 1.5f);
-        //transform.rotation = Quaternion.identity;
+
         rigid.isKinematic = false;
         rigid.velocity = _parabola;
 
@@ -240,10 +271,6 @@ public class Pikmin : MonoBehaviour, ICollider
 
         rigid.useGravity = true;
         agent.enabled = false;
-
-        Vector3 temp0 = flyTarget;
-        Vector3 temp1 = transform.position;
-        temp0.y = temp1.y = 0;
 
         transform.LookAt(flyTarget);
         StartCoroutine(RotateMe(1.5f));
@@ -266,16 +293,16 @@ public class Pikmin : MonoBehaviour, ICollider
         rigid.velocity = Vector3.zero;
     }
 
-    public void AttackPikmin(test enemy)
+    public void AttackPikmin(Enemy enemy)
     {
         StopAllCoroutines();
         PikminTarget = null;
-        transform.parent = enemy.transform;
+        transform.parent = enemy.factory;
         state = PikminState.ATTACK;
-        testScript = enemy;
+        enemyScript = enemy;
         rigid.useGravity = false;
         rigid.velocity = Vector3.zero;
-        transform.LookAt(transform);
+        transform.LookAt(enemy.transform);
     }
 
     public Transform PikminTarget
