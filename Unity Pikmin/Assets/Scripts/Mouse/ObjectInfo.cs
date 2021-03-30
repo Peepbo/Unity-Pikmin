@@ -7,19 +7,21 @@ public class ObjectInfo : MonoBehaviour
     public  Transform    sprite;
     private Transform    cameraTransform;
     private Vector3      endSize = new Vector3(0.5f, 0.5f, 0f);
+    private float        objSize;
 
     private void Start() => cameraTransform = Camera.main.transform;
 
     private void LookCamera() => sprite.LookAt(cameraTransform);
 
-    public void Checker(Removable script)
+    public void Checker(Transform obj)
     {
         LookCamera();
 
-        if (script != null)
+        if (obj != null)
         {
-            Show(script);
-            ChangeValue(script);
+            Show(obj);
+
+            if(objSize == 0) objSize = obj.GetComponent<IObject>().infoSize;
         }
         else
         {
@@ -27,29 +29,15 @@ public class ObjectInfo : MonoBehaviour
         }
     }
 
-    private void Show(Removable script)
+    private void Show(Transform obj)
     {
-        sprite.position = script.transform.position;
-        sprite.localScale = Vector3.Lerp(sprite.localScale, endSize, Time.deltaTime * 5f);
-    }
-
-    private void ChangeValue(Removable script)
-    {
-        switch (MouseController.instance.GetWheel())
-        {
-            case MouseWheel.STAY:
-                return;
-            case MouseWheel.UP:
-                script.TextNum++;
-                break;
-            case MouseWheel.DOWN:
-                script.TextNum--;
-                break;
-        }
+        sprite.position = obj.position;
+        sprite.localScale = Vector3.Lerp(sprite.localScale, endSize * objSize, Time.deltaTime * 5f);
     }
 
     private void Hide()
     {
         sprite.localScale = Vector3.Lerp(sprite.localScale, Vector3.zero, Time.deltaTime * 9f);
+        objSize = 0;
     }
 }

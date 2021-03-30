@@ -2,13 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IObject
 {
     private bool isDie;
     public int hp;
     public Vector3 cubeSize;
     public Vector3 center;
     public Transform factory;
+    public TextMesh textMesh;
+
+    [Header("Object Settings")]
+    public float objSize;
+
+    void Start()
+    {
+        infoSize = objSize;
+        objetType = ObjectType.MONSTER_OBJ;
+    }
 
     // Update is called once per frame
     void Update()
@@ -37,6 +47,7 @@ public class Enemy : MonoBehaviour
         if (isDie) return;
 
         hp -= value;
+        textMesh.text = hp.ToString();
         if (hp <= 0)
         {
             isDie = true;
@@ -47,6 +58,9 @@ public class Enemy : MonoBehaviour
             }
         }
     }
+
+    public float infoSize { get; set; }
+    public ObjectType objetType { get; set; }
 
     private void OnDrawGizmos()
     {

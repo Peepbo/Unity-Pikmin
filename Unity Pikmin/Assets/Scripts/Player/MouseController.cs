@@ -46,7 +46,7 @@ public class MouseController : MonoBehaviour
 
         whistle.Checker(Input.GetMouseButton(0));
 
-        objectInfo.Checker(GetRemovableHit());
+        objectInfo.Checker(GetObjectHit());
 
         UpdateLine();
     }
@@ -85,6 +85,18 @@ public class MouseController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, 100f, layerMask))
             return hit.transform.GetComponent<Removable>();
+
+        return null;
+    }
+
+    private Transform GetObjectHit()
+    {
+        ray = cam.ScreenPointToRay(Input.mousePosition);
+
+        layerMask = 1 << LayerMask.NameToLayer("object");
+
+        if (Physics.Raycast(ray, out hit, 100f, layerMask))
+            return hit.transform;
 
         return null;
     }

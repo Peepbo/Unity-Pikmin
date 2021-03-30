@@ -16,7 +16,7 @@ public class Pikmin : MonoBehaviour, ICollider
     private Transform followTarget;
     private NavMeshAgent agent;
     private Rigidbody rigid;
-    private Removable removable;
+    public Removable removable;
     private CapsuleCollider col;
 
     private Animator anim;
@@ -83,6 +83,8 @@ public class Pikmin : MonoBehaviour, ICollider
 
     public bool CheckGround()
     {
+        if (transform.parent != null) return true;
+
         Debug.DrawRay(bottomPoint.transform.position, Vector3.down * 0.15f);
 
         RaycastHit _hit;
@@ -106,38 +108,62 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Stay()
     {
-        col.enabled = true;
-        agent.enabled = false;
-
-        if (followTarget != null)
+        if(transform.parent == null)
         {
-            if(!isDelivery)
+            col.enabled = true;
+            if (followTarget != null)
             {
-                if(Vector3.Distance(transform.position,followTarget.position) > 2.0f)
+                if (!isDelivery)
                 {
-                    state = PikminState.FOLLOW;
+                    if (Vector3.Distance(transform.position, followTarget.position) > 2.5f)
+                    {
+                        state = PikminState.FOLLOW;
+                    }
                 }
             }
-            else
+        }
+
+        else if(removable != null)
+        {
+            if (removable.GetComponent<NavMeshAgent>().enabled)
             {
-                if(transform.parent.parent.GetComponent<NavMeshAgent>().enabled)
-                {
-                    state = PikminState.FOLLOW;
-                }
+                state = PikminState.FOLLOW;
             }
         }
     }
 
     private void Move()
     {
+        if (followTarget == null)
+        {
+            state = PikminState.STAY;
+            return;
+        }
+
         col.enabled = false;
-        
-        agent.SetDestination(followTarget.position);
+
+        if (agent.enabled) agent.SetDestination(followTarget.position);
 
         if (!isDelivery)
         {
             agent.enabled = true;
             agent.speed = 3.5f;
+
+            Collider[] cols = Physics.OverlapSphere(transform.position, 0.3f);
+
+            foreach(Collider col in cols)
+            {
+                if(col.CompareTag("Pikmin"))
+                {
+                    var script = col.GetComponent<Pikmin>();
+                    if (script.state == PikminState.STAY)
+                    {
+                        state = PikminState.STAY;
+                        break;
+                    }
+                }
+            }
+
             if (Vector3.Distance(transform.position, followTarget.position) < 2.0f)
             {
                 state = PikminState.STAY;
@@ -224,22 +250,20 @@ public class Pikmin : MonoBehaviour, ICollider
         else state = PikminState.STAY;
 
         enemyScript = null;
-        transform.rotation = Quaternion.identity;
+       
+        //transform.rotation = Quaternion.identity;
         agent.stoppingDistance = 2f;
 
         if (transform.parent != null)
         {
-            switch (state)
+            if(isDelivery)
             {
-                case PikminState.FOLLOW:
-                    transform.parent = null;
-                    isDelivery = false;
-                    removable.FinishWork();
-                    break;
-                case PikminState.ATTACK:
-                    transform.parent = null;
-                    break;
+                isDelivery = false;
+                removable.FinishWork();
+                removable = null;
             }
+
+            transform.parent = null;
         }
     }
 
@@ -258,7 +282,7 @@ public class Pikmin : MonoBehaviour, ICollider
     {
         removable = removableScript;
 
-        Vector3 _parabola = Parabola.CalculateVelocity(endPos, startPos, 1.5f);
+        Vector3 _parabola = Utils.CalculateVelocity(endPos, startPos, 1.5f);
 
         rigid.isKinematic = false;
         rigid.velocity = _parabola;
@@ -303,6 +327,12 @@ public class Pikmin : MonoBehaviour, ICollider
         rigid.useGravity = false;
         rigid.velocity = Vector3.zero;
         transform.LookAt(enemy.transform);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, 0.3f);
     }
 
     public Transform PikminTarget

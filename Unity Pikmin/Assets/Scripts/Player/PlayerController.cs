@@ -18,6 +18,10 @@ public class PlayerController : MonoBehaviour, ICollider
     private Action            idleAct, walkAct, throw0Act, throw1Act;
     public  List<Pikmin>      pikmins = new List<Pikmin>();
      
+    void OnTriggerEnter()
+    {
+
+    }
     private void Awake()
     {
         anim = transform.GetComponentInChildren<Animator>();
@@ -115,14 +119,14 @@ public class PlayerController : MonoBehaviour, ICollider
             state = PlayerState.Walk;
 
             transform.rotation = Quaternion.LookRotation(direction);
+
+            if (Collision()) return;
+            pos.x += h * Time.deltaTime * 5f;
+            pos.z += v * Time.deltaTime * 5f;
+
+            transform.position = pos;
         }
         else state = PlayerState.Idle;
-
-        if (Collision()) return;
-        pos.x += h * Time.deltaTime * 5f;
-        pos.z += v * Time.deltaTime * 5f;
-
-        transform.position = pos;
     }
 
     private void LeftButton()
@@ -185,35 +189,7 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         if (Input.GetKeyDown(KeyCode.Space) && myPikminCount > 0 && myHand.transform.childCount == 0)
         {
-            Pikmin choose = null;
-            float dis = 0.0f;
-
-            foreach (Pikmin pik in pikmins)
-            {
-                if (pik.state == PikminState.FOLLOW || pik.state == PikminState.STAY)
-                {
-                    float cmp = (transform.position - pik.transform.position).magnitude;
-
-                    if (choose == null)
-                    {
-                        choose = pik;
-                        dis = cmp;
-                    }
-
-                    else if (dis > cmp)
-                    {
-                        choose = pik;
-                        dis = cmp;
-                    }
-
-                }
-            }
-
-            if (choose != null)
-            {
-                choose.PickMe(myHand.transform);
-                myPikminCount--;
-            }
+            CatchPik();
         }
     }
 
@@ -231,9 +207,14 @@ public class PlayerController : MonoBehaviour, ICollider
         {
             if (col.CompareTag("Object"))
             {
-                _removable = col.GetComponent<Removable>();
-                throwPos = _removable.ThrowPos();
-                break;
+                var _type = col.GetComponent<IObject>().objetType;
+
+                if (_type == ObjectType.MOVEABLE_OBJ)
+                {
+                    _removable = col.GetComponent<Removable>();
+                    throwPos = _removable.ThrowPos();
+                    break;
+                }
             }
         }
 
@@ -295,12 +276,17 @@ public class PlayerController : MonoBehaviour, ICollider
 
     private bool Collision()
     {
-        Collider[] cols = Physics.OverlapSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
-        foreach(var col in cols)
+        Collider[] cols = Physics.OverlapSphere(transform.position + Vector3.down * 1f + direction, 0.3f);
+
+        Debug.Log(cols.Length);
+
+        if (cols.Length == 0) return true;
+
+        foreach (var col in cols)
         {
             if (col.CompareTag("Object")) return true;
 
-            if(col.CompareTag("Pikmin"))
+            if (col.CompareTag("Pikmin"))
             {
                 ICollider colObj = col.GetComponent<ICollider>();
 
@@ -309,9 +295,10 @@ public class PlayerController : MonoBehaviour, ICollider
                 Vector3 b = col.transform.position;
                 b.y = 0;
                 Vector3 v = a - b;
-                colObj.PushedOut(-(v.normalized) * 5/v.magnitude);
+                colObj.PushedOut(-(v.normalized) * 5 / v.magnitude);
             }
         }
+
         return false;
     }
 

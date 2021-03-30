@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public partial class Removable : MonoBehaviour
+public partial class Removable : MonoBehaviour, IObject
 {
-    [Header("[Gizmo Settings]")]
+    [Header("Gizmo Settings")]
     public Color gColor;
     public float gSize;
     public float gYpos;
     private float gAngle;
 
-    [Header("[Removable Settings]")]
+    [Header("Removable Settings")]
     public int needs;
     private int works;
-    private float PI2, angle;
+    private float angle;
     private Transform factory, location, textMesh;
+
+    [Header("Object Settings")]
+    public float objSize;
 
     private void Awake()
     {
@@ -23,8 +26,8 @@ public partial class Removable : MonoBehaviour
         location = transform.GetChild(1);
         textMesh = transform.GetChild(2);
 
-        PI2 = Mathf.PI * 2;
-
+        infoSize = objSize;
+        objetType = ObjectType.MOVEABLE_OBJ;
         AgentAwake();
     }
 
@@ -93,22 +96,27 @@ public partial class Removable : MonoBehaviour
     {
         for (int i = 0; i < works; i++)
         {
-            angle = i * PI2 / works;
+            angle = i * Utils.PI2 / works;
 
             location.GetChild(i).position = transform.position + Vector3.down * gYpos;
             location.GetChild(i).position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
         }
+
+        textMesh.GetComponent<TextMesh>().text = works.ToString() + "\nㅡ\n" + needs.ToString();
     }
 
     public int TextNum
     {
         get { return int.Parse(textMesh.GetComponent<TextMesh>().text); }
-        set 
+        set
         {
             if (value < 0) return;
-            textMesh.GetComponent<TextMesh>().text = value.ToString(); 
+            textMesh.GetComponent<TextMesh>().text = value.ToString();
         }
     }
+
+    public float infoSize { get; set; }
+    public ObjectType objetType { get; set; }
 
     private void OnDrawGizmos()
     {
@@ -117,9 +125,10 @@ public partial class Removable : MonoBehaviour
 
         for (int i = 0; i < works; i++)
         {
-            gAngle = i * Mathf.PI * 2 / works;
+            gAngle = i * Utils.PI2 / works;
             Gizmos.DrawWireSphere(transform.position + Vector3.down * gYpos + new Vector3(Mathf.Cos(gAngle) * gSize,
                 0, Mathf.Sin(gAngle) * gSize), 0.2f);
         }
     }
+
 }
