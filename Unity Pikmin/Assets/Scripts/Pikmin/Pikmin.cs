@@ -85,10 +85,10 @@ public class Pikmin : MonoBehaviour, ICollider
     {
         if (transform.parent != null) return true;
 
-        Debug.DrawRay(bottomPoint.transform.position, Vector3.down * 0.15f);
+        Debug.DrawRay(bottomPoint.transform.position, Vector3.down * 1f, Color.red);
 
         RaycastHit _hit;
-        if (Physics.Raycast(bottomPoint.transform.position, Vector3.down, out _hit, 0.15f))
+        if (Physics.Raycast(bottomPoint.transform.position, Vector3.down, out _hit, 1f))
         {
             if (_hit.transform.CompareTag("Floor"))
             {
@@ -220,7 +220,12 @@ public class Pikmin : MonoBehaviour, ICollider
     }
 
     // Update is called once per frame
-    private void Update() => Animation();
+    //private void Update() => Animation();
+
+    private void FixedUpdate()
+    {
+        Animation();
+    }
 
     private void Animation()
     {

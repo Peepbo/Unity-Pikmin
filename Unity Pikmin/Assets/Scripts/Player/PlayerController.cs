@@ -207,7 +207,7 @@ public class PlayerController : MonoBehaviour, ICollider
         {
             if (col.CompareTag("Object"))
             {
-                var _type = col.GetComponent<IObject>().objetType;
+                var _type = col.GetComponent<IObject>().objectType;
 
                 if (_type == ObjectType.MOVEABLE_OBJ)
                 {

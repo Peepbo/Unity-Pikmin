@@ -15,20 +15,41 @@ public partial class Removable : MonoBehaviour, IObject
     public int needs;
     private int works;
     private float angle;
-    private Transform factory, location, textMesh;
+    public Transform factory, location, textMesh;
 
     [Header("Object Settings")]
     public float objSize;
 
     private void Awake()
     {
-        factory = transform.GetChild(0);
-        location = transform.GetChild(1);
-        textMesh = transform.GetChild(2);
+        for (int i = 0; i < 2; i++)
+        {
+            GameObject _obj = new GameObject();
+            if(i == 0)
+            {
+                _obj.name = "Factory";
+                factory = _obj.transform;
+            }
+            else
+            {
+                _obj.name = "Location";
+                location = _obj.transform;
+            }
+
+            _obj.transform.parent = transform;
+            _obj.transform.localPosition = Vector3.zero;
+        }
 
         infoSize = objSize;
-        objetType = ObjectType.MOVEABLE_OBJ;
+        objectType = ObjectType.MOVEABLE_OBJ;
         AgentAwake();
+    }
+
+    public void Init(float objArea, float objYpos, int objNeed)
+    {
+        gSize = objArea;
+        gYpos = objYpos;
+        needs = objNeed;
     }
 
     private void Update() => AgentUpdate();
@@ -102,21 +123,21 @@ public partial class Removable : MonoBehaviour, IObject
             location.GetChild(i).position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
         }
 
-        textMesh.GetComponent<TextMesh>().text = works.ToString() + "\nㅡ\n" + needs.ToString();
+        //textMesh.GetComponent<TextMesh>().text = works.ToString() + "\nㅡ\n" + needs.ToString();
     }
 
-    public int TextNum
-    {
-        get { return int.Parse(textMesh.GetComponent<TextMesh>().text); }
-        set
-        {
-            if (value < 0) return;
-            textMesh.GetComponent<TextMesh>().text = value.ToString();
-        }
-    }
+    //public int TextNum
+    //{
+    //    get { return int.Parse(textMesh.GetComponent<TextMesh>().text); }
+    //    set
+    //    {
+    //        if (value < 0) return;
+    //        textMesh.GetComponent<TextMesh>().text = value.ToString();
+    //    }
+    //}
 
     public float infoSize { get; set; }
-    public ObjectType objetType { get; set; }
+    public ObjectType objectType { get; set; }
 
     private void OnDrawGizmos()
     {

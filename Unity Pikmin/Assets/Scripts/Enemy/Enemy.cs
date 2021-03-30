@@ -17,7 +17,7 @@ public class Enemy : MonoBehaviour, IObject
     void Start()
     {
         infoSize = objSize;
-        objetType = ObjectType.MONSTER_OBJ;
+        objectType = ObjectType.MONSTER_OBJ;
     }
 
     // Update is called once per frame
@@ -60,7 +60,7 @@ public class Enemy : MonoBehaviour, IObject
     }
 
     public float infoSize { get; set; }
-    public ObjectType objetType { get; set; }
+    public ObjectType objectType { get; set; }
 
     private void OnDrawGizmos()
     {

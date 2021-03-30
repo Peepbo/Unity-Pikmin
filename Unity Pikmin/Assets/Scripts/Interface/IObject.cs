@@ -6,5 +6,5 @@
 public interface IObject
 {
     float infoSize { get; set; }
-    ObjectType objetType { get; set; }
+    ObjectType objectType { get; set; }
 }
