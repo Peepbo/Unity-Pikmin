@@ -5661,6 +5661,9 @@ MonoBehaviour:
   gSize: 1.33
   gYpos: 0.63
   needs: 3
+  factory: {fileID: 0}
+  location: {fileID: 0}
+  textMesh: {fileID: 0}
   objSize: 1
 --- !u!135 &593131043
 SphereCollider:
