@@ -32,11 +32,12 @@ public class Enemy : MonoBehaviour, IObject
 
         foreach (Collider col in cols)
         {
+            //Debug.Log(col.name);
             if (col.transform.parent == null && col.CompareTag("Pikmin"))
             {
                 if (col.GetComponent<Pikmin>().PikminTarget != null) continue;
 
-                col.transform.position += (transform.position - col.transform.position).normalized * 0.25f;
+                col.transform.position += (transform.position - col.transform.position).normalized * 0.15f;
                 col.GetComponent<Pikmin>().AttackPikmin(this);
             }
         }

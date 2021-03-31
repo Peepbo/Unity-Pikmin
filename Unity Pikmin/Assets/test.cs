@@ -1,71 +1,45 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-public class test : MonoBehaviour, IObject
+public class test : MonoBehaviour
 {
-    public bool isActive = false;
+    private Rigidbody rigid;
     public float force;
-    Rigidbody rigid;
-    public float iSize;
+    public bool isDown;
+    public bool isEnd;
 
-    void Awake()
+    private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
-        infoSize = iSize;
-        objectType = ObjectType.TOUCH_OBJ;
+        rigid.AddForce(Vector3.up * force, ForceMode.Impulse);
     }
-    void FixedUpdate()
+
+    public void Update()
     {
-        if (isActive)
+        if (isEnd) return;
+
+        if(rigid.useGravity)
         {
+            if (rigid.velocity.y < 0)
+            {
+                isDown = true;
+                rigid.useGravity = false;
+                rigid.velocity = Vector3.zero;
+            }
+        }
+
+        if(isDown)
+        {
+            rigid.transform.Translate(Vector3.down * 1.15f * Time.deltaTime);
+
+            Debug.DrawRay(transform.position, Vector3.down * 0.5f);
+
             RaycastHit _hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out _hit, 1f))
+            if (Physics.Raycast(transform.position, Vector3.down, out _hit, 0.5f))
             {
-                if(_hit.transform.CompareTag("Floor"))
-                {
-                    rigid.isKinematic = true;
-                    objectType = ObjectType.MOVEABLE_OBJ;
-
-                    var removable = gameObject.AddComponent<Removable>();
-                    var navMesh = gameObject.AddComponent<NavMeshAgent>();
-
-                    removable.Init(0.63f, 1.33f, 1);
-                    //다른 방식으로 해결합시다.. (using prefabs..)
-                }
-            }
-
-            return;
-        }
-
-        Collider[] cols = Physics.OverlapSphere(transform.position + transform.up * 0.1f, .75f);
-
-        foreach(Collider col in cols)
-        {
-            if(col.CompareTag("Pikmin"))
-            {
-                isActive = true;
-                rigid.AddForce(transform.up * force, ForceMode.Impulse);
-                rigid.useGravity = true;
-
-                var _pikmin = col.GetComponent<Pikmin>();
-                _pikmin.StopAllCoroutines();
-                var _pikminRigid = col.GetComponent<Rigidbody>();
-
-                _pikminRigid.velocity = Vector3.zero;
-                _pikminRigid.AddForce(transform.up * force * 1.5f, ForceMode.Impulse);
-                break;
+                if (_hit.transform.CompareTag("Floor")) isEnd = true;
             }
         }
-    }
-
-    public float infoSize { get; set; }
-    public ObjectType objectType { get; set; }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 0.1f, .75f);
     }
 }

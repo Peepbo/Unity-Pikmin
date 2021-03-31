@@ -23,7 +23,7 @@ partial class Removable
     // spaceship에 도착
     private void Arrive()
     {
-        mat.SetColor("_EmissionColor", Color.Lerp(mat.GetColor("_EmissionColor"), new Color(0.6F, 0, 0, 3F), Time.deltaTime * 7f));
+        //mat.SetColor("_EmissionColor", Color.Lerp(mat.GetColor("_EmissionColor"), new Color(0.6F, 0, 0, 3F), Time.deltaTime * 7f));
 
         transform.position = Vector3.Lerp(transform.position, Spaceship.instance.pos + (Vector3.up * 5), Time.deltaTime * 2f);
         transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime * 0.9f);

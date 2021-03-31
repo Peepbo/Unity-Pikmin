@@ -125,6 +125,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
         else if(removable != null)
         {
+            transform.rotation = Quaternion.identity;
             if (removable.GetComponent<NavMeshAgent>().enabled)
             {
                 state = PikminState.FOLLOW;
@@ -192,6 +193,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
     private void Fly()
     {
+        col.enabled = true;
         agent.enabled = true;
         rigid.isKinematic = true;
 
@@ -300,6 +302,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
         rigid.useGravity = true;
         agent.enabled = false;
+        col.enabled = true;
 
         transform.LookAt(flyTarget);
         StartCoroutine(RotateMe(1.5f));

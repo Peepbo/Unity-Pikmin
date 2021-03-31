@@ -22,24 +22,6 @@ public partial class Removable : MonoBehaviour, IObject
 
     private void Awake()
     {
-        for (int i = 0; i < 2; i++)
-        {
-            GameObject _obj = new GameObject();
-            if(i == 0)
-            {
-                _obj.name = "Factory";
-                factory = _obj.transform;
-            }
-            else
-            {
-                _obj.name = "Location";
-                location = _obj.transform;
-            }
-
-            _obj.transform.parent = transform;
-            _obj.transform.localPosition = Vector3.zero;
-        }
-
         infoSize = objSize;
         objectType = ObjectType.MOVEABLE_OBJ;
         AgentAwake();
