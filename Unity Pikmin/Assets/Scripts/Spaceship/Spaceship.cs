@@ -41,10 +41,9 @@ public class Spaceship : MonoBehaviour
         }
     }
 
-    private IEnumerator delayActive(float time, GameObject obj)
+    private void delayActive()
     {
-        yield return new WaitForSeconds(time);
-        obj.SetActive(true);
+        smoke.SetActive(true);
     }
 
     public void Big()
@@ -54,7 +53,8 @@ public class Spaceship : MonoBehaviour
 
     private void Smoke()
     {
-        StartCoroutine(delayActive(1.0f, smoke));
+        Invoke("delayActive", 1.0f);
+        //StartCoroutine(delayActive(1.0f, smoke));
     }
 
     private void TurnOn()
