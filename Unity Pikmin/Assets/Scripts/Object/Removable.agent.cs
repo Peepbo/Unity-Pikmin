@@ -25,7 +25,7 @@ partial class Removable
     {
         //mat.SetColor("_EmissionColor", Color.Lerp(mat.GetColor("_EmissionColor"), new Color(0.6F, 0, 0, 3F), Time.deltaTime * 7f));
 
-        transform.position = Vector3.Lerp(transform.position, Spaceship.instance.transform.position + (Vector3.up * 5), Time.deltaTime * 2f);
+        transform.position = Vector3.Lerp(transform.position, Spaceship.instance.endPos.position + (Vector3.up * 5), Time.deltaTime * 2f);
         transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime * 0.9f);
 
         if (transform.localScale.magnitude < 1f)
@@ -33,7 +33,11 @@ partial class Removable
             MaterialOffset.disActive = true;
 
             Spaceship.instance.StopEffect();
-            gameObject.SetActive(false);
+
+            if (useObjectpool) 
+                ObjectPool.instance.ReturnObject(gameObject);
+            else 
+                gameObject.SetActive(false);
         }
     }
 
@@ -47,7 +51,7 @@ partial class Removable
             else
             {
                 agent.enabled = true;
-                agent.SetDestination(Spaceship.instance.transform.position);
+                agent.SetDestination(Spaceship.instance.endPos.position);
             }
         }
         else
@@ -56,7 +60,7 @@ partial class Removable
             timer = 0;
         }
 
-        if (Vector3.Distance(Spaceship.instance.transform.position, transform.position) < 1.0f)
+        if (Vector3.Distance(Spaceship.instance.endPos.position, transform.position) < 1.0f)
         {
             agent.enabled = false;
             isArrive = true;

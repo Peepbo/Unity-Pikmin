@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 2678688668931374432}
   - component: {fileID: 2678688668931374442}
   m_Layer: 9
-  m_Name: Flower1
+  m_Name: FlowerCoin
   m_TagString: Object
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -193,6 +193,7 @@ MonoBehaviour:
   gColor: {r: 1, g: 0, b: 0, a: 1}
   gSize: 0.81
   gYpos: 0
+  useObjectpool: 1
   seedNum: 1
   needs: 1
   factory: {fileID: 2678688668188235245}

@@ -12,6 +12,7 @@ public partial class Removable : MonoBehaviour, IObject
     private float gAngle;
 
     [Header("Removable Settings")]
+    public bool useObjectpool;
     public int seedNum;
     public int needs;
     private int works;

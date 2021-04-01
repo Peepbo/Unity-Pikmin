@@ -7,6 +7,7 @@ public class Seed : MonoBehaviour
     private enum SeedState {UP,DOWN,END}
 
     [Header("SeedSettings")]
+    //public  GameObject      prefab;
     public  RotateObject    rObj;
     public  Animator        anim;
     private Rigidbody       rigid;
@@ -71,6 +72,19 @@ public class Seed : MonoBehaviour
                 }
                 break;
             case SeedState.END:
+                Collider[] cols = Physics.OverlapSphere(transform.position, 1f);
+
+                foreach(Collider col in cols)
+                {
+                    if(col.CompareTag("Player"))
+                    {
+                        var obj = ObjectPool.instance.BorrowObject("Pikmin");
+                        obj.transform.parent = null;
+                        obj.transform.position = transform.position; 
+                        PlayerController.instance.AddPikmin(obj);
+                        ObjectPool.instance.ReturnObject(gameObject);
+                    }
+                }
                 break;
         }
     }

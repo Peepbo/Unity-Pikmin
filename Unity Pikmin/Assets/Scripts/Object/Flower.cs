@@ -28,7 +28,10 @@ public class Flower : MonoBehaviour, IObject
                 if (_hit.transform.CompareTag("Floor"))
                 {
                     rigid.isKinematic = true;
-                    Instantiate(prefab, transform.position, Quaternion.identity);
+                    var obj = ObjectPool.instance.BorrowObject("Object");
+                    obj.transform.position = transform.position;
+                    obj.transform.parent = null;
+
                     gameObject.SetActive(false);
                 }
             }

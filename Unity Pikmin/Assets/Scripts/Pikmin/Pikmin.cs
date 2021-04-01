@@ -181,7 +181,7 @@ public class Pikmin : MonoBehaviour, ICollider
             {
                 agent.enabled = false;
                 transform.position = followTarget.transform.position;
-                transform.LookAt(Spaceship.instance.transform.position);
+                transform.LookAt(Spaceship.instance.endPos.position);
 
                 if (!removable.GetComponent<NavMeshAgent>().enabled)
                 {

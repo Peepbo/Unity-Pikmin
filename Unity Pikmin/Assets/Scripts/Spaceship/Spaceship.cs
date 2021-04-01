@@ -12,6 +12,7 @@ public class Spaceship : MonoBehaviour
     public GameObject lightVulume;
     public ParticleSystem particle;
     public GameObject smoke;
+    public Transform endPos;
     public int seedNum;
 
     private void Awake()
@@ -30,7 +31,11 @@ public class Spaceship : MonoBehaviour
         yield return new WaitForSeconds(1f);
         while(seedNum > 0)
         {
-            Instantiate(seed, topPos.position, Quaternion.identity);
+            Big();
+            GameObject obj = ObjectPool.instance.BorrowObject("Seed");
+            obj.transform.position = topPos.position;
+            obj.transform.parent = null;
+            //Instantiate(seed, topPos.position, Quaternion.identity);
             seedNum--;
             yield return new WaitForSeconds(time);
         }
@@ -40,12 +45,11 @@ public class Spaceship : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         obj.SetActive(true);
-        transform.parent.GetComponent<Animator>().SetTrigger("Big");
     }
 
     public void Big()
     {
-        transform.parent.GetComponent<Animator>().SetTrigger("Big");
+        transform.GetComponent<Animator>().SetTrigger("Big");
     }
 
     private void Smoke()

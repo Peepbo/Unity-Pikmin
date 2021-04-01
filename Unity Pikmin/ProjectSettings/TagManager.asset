@@ -9,6 +9,8 @@ TagManager:
   - Collider
   - Enemy
   - Floor
+  - Seed
+  - FlowerCoin
   layers:
   - Default
   - TransparentFX

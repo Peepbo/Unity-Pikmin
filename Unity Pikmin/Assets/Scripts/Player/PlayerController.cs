@@ -5,6 +5,8 @@ using System;
 
 public class PlayerController : MonoBehaviour, ICollider
 {
+    public static PlayerController instance;
+
     public enum PlayerState   {Idle,Walk,ThrowReady,ThrowAction}
 
     public  PlayerState       state;
@@ -16,14 +18,12 @@ public class PlayerController : MonoBehaviour, ICollider
     private Vector3           direction;
 
     private Action            idleAct, walkAct, throw0Act, throw1Act;
-    public  List<Pikmin>      pikmins = new List<Pikmin>();
-     
-    void OnTriggerEnter()
-    {
+    private List<Pikmin>      pikmins = new List<Pikmin>();
 
-    }
     private void Awake()
     {
+        instance = this;
+
         anim = transform.GetComponentInChildren<Animator>();
         state = PlayerState.Idle;
         FootPos = transform.GetChild(2).transform;
@@ -47,6 +47,11 @@ public class PlayerController : MonoBehaviour, ICollider
         }
 
         SetAction();
+    }
+
+    public void AddPikmin(GameObject obj)
+    {
+        pikmins.Add(obj.GetComponent<Pikmin>());
     }
 
     private void SetAction()
