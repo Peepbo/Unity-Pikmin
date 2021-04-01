@@ -12,6 +12,7 @@ public partial class Removable : MonoBehaviour, IObject
     private float gAngle;
 
     [Header("Removable Settings")]
+    public int seedNum;
     public int needs;
     private int works;
     private float angle;
@@ -25,13 +26,6 @@ public partial class Removable : MonoBehaviour, IObject
         infoSize = objSize;
         objectType = ObjectType.MOVEABLE_OBJ;
         AgentAwake();
-    }
-
-    public void Init(float objArea, float objYpos, int objNeed)
-    {
-        gSize = objArea;
-        gYpos = objYpos;
-        needs = objNeed;
     }
 
     private void Update() => AgentUpdate();
@@ -104,19 +98,7 @@ public partial class Removable : MonoBehaviour, IObject
             location.GetChild(i).position = transform.position + Vector3.down * gYpos;
             location.GetChild(i).position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
         }
-
-        //textMesh.GetComponent<TextMesh>().text = works.ToString() + "\nㅡ\n" + needs.ToString();
     }
-
-    //public int TextNum
-    //{
-    //    get { return int.Parse(textMesh.GetComponent<TextMesh>().text); }
-    //    set
-    //    {
-    //        if (value < 0) return;
-    //        textMesh.GetComponent<TextMesh>().text = value.ToString();
-    //    }
-    //}
 
     public float infoSize { get; set; }
     public ObjectType objectType { get; set; }

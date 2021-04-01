@@ -2,9 +2,16 @@
 
 static class Utils
 {
+    //return PI(3.14...) * 2
     public static float PI2
     {
         get { return Mathf.PI * 2; }
+    }
+
+    //return -1 or 1
+    public static int RandomSign
+    {
+        get { return Random.Range(0, 2) == 0 ? -1 : 1; }
     }
 
     public static Vector3 CalculateVelocity(Vector3 target, Vector3 origin, float time)

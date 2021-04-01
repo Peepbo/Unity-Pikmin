@@ -193,6 +193,7 @@ MonoBehaviour:
   gColor: {r: 1, g: 0, b: 0, a: 1}
   gSize: 0.81
   gYpos: 0
+  seedNum: 1
   needs: 1
   factory: {fileID: 2678688668188235245}
   location: {fileID: 2678688668563266282}

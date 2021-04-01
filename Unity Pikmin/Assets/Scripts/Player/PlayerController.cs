@@ -278,8 +278,6 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         Collider[] cols = Physics.OverlapSphere(transform.position + Vector3.down * 1f + direction, 0.3f);
 
-        Debug.Log(cols.Length);
-
         if (cols.Length == 0) return true;
 
         foreach (var col in cols)

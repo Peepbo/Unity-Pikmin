@@ -4,5 +4,7 @@ using UnityEngine;
 
 public class RotateObject : MonoBehaviour
 {
-    void Update() => transform.Rotate(Vector3.forward * 0.75f);
+    public Vector3 dir;
+    public float force;
+    void Update() => transform.Rotate(dir * force);
 }

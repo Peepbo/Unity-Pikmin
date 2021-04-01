@@ -79,7 +79,7 @@ public class RemovableObj : MonoBehaviour, ICollider
         {
             mat.SetColor("_EmissionColor", Color.Lerp(mat.GetColor("_EmissionColor"), emissionColor, Time.deltaTime * 7f));
 
-            transform.position = Vector3.Lerp(transform.position, Spaceship.instance.pos + (Vector3.up * 5), Time.deltaTime * 2f);
+            transform.position = Vector3.Lerp(transform.position, Spaceship.instance.transform.position + (Vector3.up * 5), Time.deltaTime * 2f);
             transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime * 0.9F);
 
             if (transform.localScale.magnitude < 0.45f)
@@ -114,7 +114,7 @@ public class RemovableObj : MonoBehaviour, ICollider
         {
             agent.enabled = true;
 
-            Vector3 des = Spaceship.instance.pos;
+            Vector3 des = Spaceship.instance.transform.position;
             des.y = transform.position.y;
             agent.SetDestination(des);
             if (Vector3.Distance(transform.position, des) < 0.1f)

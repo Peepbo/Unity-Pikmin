@@ -7,27 +7,36 @@ public class Spaceship : MonoBehaviour
 {
     public static Spaceship instance;
 
-    public Vector3 pos;
+    public GameObject seed;
+    public Transform topPos;
     public GameObject lightVulume;
     public ParticleSystem particle;
     public GameObject smoke;
+    public int seedNum;
 
     private void Awake()
     {
         instance = this;
     }
-    // Start is called before the first frame update
-    void Start()
+
+    public void ActiveDissemination(int plusSeed)
     {
-        pos = transform.position;
+        seedNum += plusSeed;
+        StartCoroutine(dissemination(1.25f));
     }
 
-    private void Update()
+    private IEnumerator dissemination(float time)
     {
-        transform.parent.Rotate(0, -30 * Time.deltaTime, 0);
+        yield return new WaitForSeconds(1f);
+        while(seedNum > 0)
+        {
+            Instantiate(seed, topPos.position, Quaternion.identity);
+            seedNum--;
+            yield return new WaitForSeconds(time);
+        }
     }
 
-    IEnumerator delayActive(float time, GameObject obj)
+    private IEnumerator delayActive(float time, GameObject obj)
     {
         yield return new WaitForSeconds(time);
         obj.SetActive(true);
