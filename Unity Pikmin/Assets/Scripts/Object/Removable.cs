@@ -79,7 +79,7 @@ public partial class Removable : MonoBehaviour, IObject
     }
 
     // 공간을 확장하고, location 재 지정
-    private void Expansion()
+    public void Expansion()
     {
         works++;
 

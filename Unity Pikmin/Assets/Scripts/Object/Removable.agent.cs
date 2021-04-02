@@ -28,7 +28,7 @@ partial class Removable
         transform.position = Vector3.Lerp(transform.position, Spaceship.instance.endPos.position + (Vector3.up * 5), Time.deltaTime * 2f);
         transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, Time.deltaTime * 0.9f);
 
-        if (transform.localScale.magnitude < 1f)
+        if (transform.localScale.magnitude < 4.5f)
         {
             MaterialOffset.disActive = true;
 

@@ -152,11 +152,11 @@ public class Pikmin : MonoBehaviour, ICollider
 
             Collider[] cols = Physics.OverlapSphere(transform.position, 0.3f);
 
-            foreach(Collider col in cols)
+            foreach(Collider _collider in cols)
             {
-                if(col.CompareTag("Pikmin"))
+                if(_collider.CompareTag("Pikmin"))
                 {
-                    var script = col.GetComponent<Pikmin>();
+                    var script = _collider.GetComponent<Pikmin>();
                     if (script.state == PikminState.STAY)
                     {
                         state = PikminState.STAY;
@@ -199,11 +199,7 @@ public class Pikmin : MonoBehaviour, ICollider
 
         if (removable != null)
         {
-            isDelivery = true;
-
-            removable.Arrangement(transform);
-            agent.stoppingDistance = 0.2f;
-            state = PikminState.FOLLOW;
+            WorkPikmin();
         }
 
         else
@@ -221,13 +217,16 @@ public class Pikmin : MonoBehaviour, ICollider
         }
     }
 
-    // Update is called once per frame
-    //private void Update() => Animation();
-
-    private void FixedUpdate()
+    public void WorkPikmin()
     {
-        Animation();
+        isDelivery = true;
+
+        removable.Arrangement(transform);
+        agent.stoppingDistance = 0.2f;
+        state = PikminState.FOLLOW;
     }
+
+    private void FixedUpdate() => Animation(); 
 
     private void Animation()
     {
@@ -292,6 +291,7 @@ public class Pikmin : MonoBehaviour, ICollider
         Vector3 _parabola = Utils.CalculateVelocity(endPos, startPos, 1.5f);
 
         rigid.isKinematic = false;
+        rigid.useGravity = true;
         rigid.velocity = _parabola;
 
         transform.parent = null;
@@ -300,7 +300,6 @@ public class Pikmin : MonoBehaviour, ICollider
         state = PikminState.FLY;
         flyTarget = endPos;
 
-        rigid.useGravity = true;
         agent.enabled = false;
         col.enabled = true;
 
@@ -335,12 +334,6 @@ public class Pikmin : MonoBehaviour, ICollider
         rigid.useGravity = false;
         rigid.velocity = Vector3.zero;
         transform.LookAt(enemy.transform);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, 0.3f);
     }
 
     public Transform PikminTarget

@@ -18,6 +18,7 @@ public class Flower : MonoBehaviour, IObject
         infoSize = iSize;
         objectType = ObjectType.TOUCH_OBJ;
     }
+
     void FixedUpdate()
     {
         if (isActive)
@@ -31,6 +32,8 @@ public class Flower : MonoBehaviour, IObject
                     var obj = ObjectPool.instance.BorrowObject("Object");
                     obj.transform.position = transform.position;
                     obj.transform.parent = null;
+
+                    obj.GetComponent<EnsnarePikmin>().Ensnare();
 
                     gameObject.SetActive(false);
                 }
