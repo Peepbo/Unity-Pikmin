@@ -25035,7 +25035,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.76666665
     functionName: PlayAct
-    data: Idle
+    data: EndThrow
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

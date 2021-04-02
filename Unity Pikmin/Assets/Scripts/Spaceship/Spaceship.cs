@@ -54,7 +54,6 @@ public class Spaceship : MonoBehaviour
     private void Smoke()
     {
         Invoke("delayActive", 1.0f);
-        //StartCoroutine(delayActive(1.0f, smoke));
     }
 
     private void TurnOn()

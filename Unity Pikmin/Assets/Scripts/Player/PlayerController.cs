@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour, ICollider
 {
     public static PlayerController instance;
 
-    public enum PlayerState   {Idle,Walk,ThrowReady,ThrowAction}
+    public enum PlayerState   {Idle,Walk,ThrowAction}
 
     public  PlayerState       state;
     public  int               myPikminCount;
@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour, ICollider
     private Vector3           throwPos;
     private Vector3           direction;
 
-    private Action            idleAct, walkAct, throw0Act, throw1Act;
+    private Action            idleAct, walkAct, throwAct;
     private List<Pikmin>      pikmins = new List<Pikmin>();
 
     private void Awake()
@@ -35,6 +35,11 @@ public class PlayerController : MonoBehaviour, ICollider
         charAnim.AddAct("Throw", ThrowPik);
         charAnim.AddAct("Catch", CatchPik);
         charAnim.AddAct("ThrowCheck", CheckThrow);
+        charAnim.AddAct("EndThrow", () =>
+        {
+            anim.SetBool("RightClick", false);
+            state = PlayerState.Idle;
+        });
     }
 
     private void Start()
@@ -75,17 +80,10 @@ public class PlayerController : MonoBehaviour, ICollider
             anim.SetFloat("MoveSpeed", 1);
         };
 
-        throw0Act = () =>
+        throwAct = () =>
         {
-            state = PlayerState.ThrowReady;
-            RightButton();
             anim.SetBool("RightClick", true);
             anim.SetFloat("MoveSpeed", 0);
-        };
-
-        throw1Act = () =>
-        {
-            anim.SetBool("RightClick", false);
         };
     }
 
@@ -102,11 +100,8 @@ public class PlayerController : MonoBehaviour, ICollider
             case PlayerState.Walk:
                 walkAct();
                 break;
-            case PlayerState.ThrowReady:
-                throw0Act();
-                break;
             case PlayerState.ThrowAction:
-                throw1Act();
+                throwAct();
                 break;
         }
     }
@@ -166,23 +161,15 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         if (state == PlayerState.Walk) return;
 
-        if (Input.GetMouseButton(1))
+        if(Input.GetMouseButtonDown(1))
         {
-            if(myHand.transform.childCount > 0)
+            if (myHand.transform.childCount > 0)
             {
                 Vector3 mouseHit = MouseController.instance.GetHit;
                 mouseHit.y = transform.position.y;
 
                 transform.LookAt(mouseHit);
 
-                state = PlayerState.ThrowReady;
-            }
-        }
-
-        if (Input.GetMouseButtonUp(1))
-        {
-            if (myHand.transform.childCount > 0)
-            {
                 throwPos = MouseController.instance.GetHit;
 
                 state = PlayerState.ThrowAction;
