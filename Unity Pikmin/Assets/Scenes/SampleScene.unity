@@ -5619,11 +5619,11 @@ MonoBehaviour:
   gYpos: 0.63
   useObjectpool: 0
   seedNum: 2
-  needs: 2
+  needs: 1
   factory: {fileID: 419218861}
   location: {fileID: 311723643}
-  textMesh: {fileID: 0}
   objSize: 1
+  textMeshObj: {fileID: 1726728563}
 --- !u!135 &593131043
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5701,6 +5701,7 @@ Transform:
   - {fileID: 311723643}
   - {fileID: 1879665393}
   - {fileID: 2051442917}
+  - {fileID: 1726728566}
   m_Father: {fileID: 1957807829}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12383,15 +12384,13 @@ GameObject:
   - component: {fileID: 1726728566}
   - component: {fileID: 1726728565}
   - component: {fileID: 1726728564}
-  - component: {fileID: 1726728567}
-  - component: {fileID: 1726728568}
   m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1726728564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12531,55 +12530,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1726728563}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -8.8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 15
+  m_Father: {fileID: 593131046}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.02, y: 4.08}
+  m_AnchoredPosition: {x: 0, y: 1.4699998}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1726728567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1726728563}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a796edc266a4e94390af8026de2c3c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tmPro: {fileID: 1726728564}
-  colorA: {r: 1, g: 0.22352941, b: 0.22352941, a: 1}
-  colorB: {r: 0.13333334, g: 0.5764706, b: 0.12941177, a: 1}
-  btn: 0
-  trigger: 0
-  anim: {fileID: 1726728568}
---- !u!95 &1726728568
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1726728563}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: ba47c85933560344eb49e8227c9b2003, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &1737188688
 PrefabInstance:
   m_ObjectHideFlags: 0

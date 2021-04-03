@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 public partial class Removable : MonoBehaviour, IObject
@@ -17,7 +15,7 @@ public partial class Removable : MonoBehaviour, IObject
     public int needs;
     private int works;
     private float angle;
-    public Transform factory, location, textMesh;
+    public Transform factory, location;
 
     [Header("Object Settings")]
     public float objSize;
@@ -26,10 +24,16 @@ public partial class Removable : MonoBehaviour, IObject
     {
         infoSize = objSize;
         objectType = ObjectType.MOVEABLE_OBJ;
+
         AgentAwake();
+        TextAwake();
     }
 
-    private void Update() => AgentUpdate();
+    private void Update()
+    {
+        AgentUpdate();
+        ColorUpdate();
+    }
 
     // Pikmin을 Object에서 해제함
     public void FinishWork()
@@ -72,6 +76,8 @@ public partial class Removable : MonoBehaviour, IObject
     {
         works--;
 
+        SetText();
+
         FixLocation();
         Relocation();
 
@@ -82,6 +88,8 @@ public partial class Removable : MonoBehaviour, IObject
     public void Expansion()
     {
         works++;
+
+        SetText();
 
         GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
         _colObj.transform.parent = location;
@@ -116,5 +124,4 @@ public partial class Removable : MonoBehaviour, IObject
                 0, Mathf.Sin(gAngle) * gSize), 0.2f);
         }
     }
-
 }
