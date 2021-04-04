@@ -5,12 +5,11 @@ using UnityEngine.AI;
 
 public class Flower : MonoBehaviour, IObject
 {
-    public GameObject prefab;
-
     public bool isActive = false;
+    public int prefabIndex;
     public float force;
-    Rigidbody rigid;
     public float iSize;
+    private Rigidbody rigid;
 
     void Awake()
     {
@@ -29,7 +28,7 @@ public class Flower : MonoBehaviour, IObject
                 if (_hit.transform.CompareTag("Floor"))
                 {
                     rigid.isKinematic = true;
-                    var obj = ObjectPool.instance.BorrowObject("Object");
+                    var obj = ObjectPool.instance.BorrowObject("Object", prefabIndex);
                     obj.transform.position = transform.position;
                     obj.transform.parent = null;
 

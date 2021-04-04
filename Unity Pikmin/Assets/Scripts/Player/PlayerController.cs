@@ -88,7 +88,11 @@ public class PlayerController : MonoBehaviour, ICollider
     }
 
     // Update is called once per frame
-    private void Update() => Animation();
+    private void Update()
+    {
+        Animation();
+        test();
+    }
 
     private void Animation()
     {
@@ -235,21 +239,22 @@ public class PlayerController : MonoBehaviour, ICollider
 
         foreach (Pikmin pik in pikmins)
         {
-            if (pik.state == PikminState.FOLLOW || pik.state == PikminState.STAY)
+            if (pik.state != PikminState.STAY) continue;
+            if (pik.PikminTarget != null) continue;
+            if (pik.transform.parent != null) continue;
+
+            float cmp = (transform.position - pik.transform.position).magnitude;
+
+            if (choose == null)
             {
-                float cmp = (transform.position - pik.transform.position).magnitude;
+                choose = pik;
+                dis = cmp;
+            }
 
-                if (choose == null)
-                {
-                    choose = pik;
-                    dis = cmp;
-                }
-
-                else if (dis > cmp)
-                {
-                    choose = pik;
-                    dis = cmp;
-                }
+            else if (dis > cmp)
+            {
+                choose = pik;
+                dis = cmp;
             }
         }
 
@@ -290,6 +295,65 @@ public class PlayerController : MonoBehaviour, ICollider
         }
 
         return false;
+    }
+
+    private void test()
+    {
+        if(Input.GetMouseButtonDown(2))
+        {
+            Transform _db = MouseController.instance.GetObjectHit();
+            if (_db != null)
+            {
+                IObject _obj = _db.GetComponent<IObject>();
+
+                switch (_obj.objectType)
+                {
+                    case ObjectType.MONSTER_OBJ:
+                        Debug.Log("monster!");
+                        Enemy _enemy = _db.GetComponent<Enemy>();
+
+                        break;
+                    case ObjectType.MOVEABLE_OBJ:
+                        Debug.Log("moveable!");
+                        Removable _removable = _db.GetComponent<Removable>();
+                        Pikmin choose = null;
+                        float dis = 0.0f;
+
+                        foreach (Pikmin pik in pikmins)
+                        {
+                            if (pik.state != PikminState.STAY) continue;
+                            if (pik.PikminTarget != null) continue;
+                            if (pik.transform.parent != null) continue;
+
+                            float cmp = (transform.position - pik.transform.position).magnitude;
+
+                            if (choose == null)
+                            {
+                                choose = pik;
+                                dis = cmp;
+                            }
+
+                            else if (dis > cmp)
+                            {
+                                choose = pik;
+                                dis = cmp;
+                            }
+                        }
+
+                        if (choose == null) return;
+
+                        _removable.Expansion();
+                        choose.removable = _removable;
+                        choose.WorkPikmin();
+                        break;
+                    case ObjectType.TOUCH_OBJ:
+                        Debug.Log("touchable!");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     private void OnDrawGizmos()

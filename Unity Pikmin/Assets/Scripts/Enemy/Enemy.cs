@@ -9,7 +9,9 @@ public class Enemy : MonoBehaviour, IObject
     public Vector3 cubeSize;
     public Vector3 center;
     public Transform factory;
-    public TextMesh textMesh;
+    //public TextMesh textMesh;
+
+    public Transform centerPt;
 
     [Header("Object Settings")]
     public float objSize;
@@ -48,7 +50,7 @@ public class Enemy : MonoBehaviour, IObject
         if (isDie) return;
 
         hp -= value;
-        textMesh.text = hp.ToString();
+        //textMesh.text = hp.ToString();
         if (hp <= 0)
         {
             isDie = true;
@@ -66,6 +68,6 @@ public class Enemy : MonoBehaviour, IObject
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position + center, cubeSize);
+        Gizmos.DrawWireCube(centerPt.position + center, cubeSize);
     }
 }

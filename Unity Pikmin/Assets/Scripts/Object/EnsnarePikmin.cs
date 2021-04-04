@@ -14,6 +14,8 @@ public class EnsnarePikmin : MonoBehaviour
 
         while (time < 1f)
         {
+            if (removable.needs == removable.factory.childCount) break;
+
             Collider[] cols = Physics.OverlapSphere(transform.position, 3.5f);
 
             foreach (Collider col in cols)

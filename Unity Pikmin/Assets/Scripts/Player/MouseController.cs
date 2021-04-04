@@ -40,7 +40,7 @@ public class MouseController : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    private void FixedUpdate()
     {
         cursor3D.position = GetHit;
 
@@ -77,7 +77,7 @@ public class MouseController : MonoBehaviour
     }
 
     //마우스가 가리키고 있는 곳 중 (옮길 수 있는)물체의 스크립트를 반환한다.
-    private Removable GetRemovableHit()
+    public Removable GetRemovableHit()
     {
         ray = cam.ScreenPointToRay(Input.mousePosition);
 
@@ -89,7 +89,7 @@ public class MouseController : MonoBehaviour
         return null;
     }
 
-    private Transform GetObjectHit()
+    public Transform GetObjectHit()
     {
         ray = cam.ScreenPointToRay(Input.mousePosition);
 

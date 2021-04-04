@@ -6,6 +6,7 @@ using UnityEngine;
 public class ObjectPoolItem
 {
     public int amount;
+    public int index;
     public GameObject prefToPool;
     public bool shouldExpend;
 }
@@ -24,8 +25,8 @@ public class ObjectPool : MonoBehaviour
         foreach (ObjectPoolItem item in itemToPool)
         {
             GameObject newParent = new GameObject();
-            newParent.name = item.prefToPool.tag + "[objectPool]";
-            parentDictionary.Add(item.prefToPool.tag, newParent.transform);
+            newParent.name = item.prefToPool.tag + item.index + "[objectPool]";
+            parentDictionary.Add(item.prefToPool.tag + item.index, newParent.transform);
 
             for (int i = 0; i < item.amount; i++)
             {
@@ -36,12 +37,12 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public GameObject BorrowObject(string tag)
+    public GameObject BorrowObject(string tag, int index = 0)
     {
-        if (parentDictionary[tag].childCount != 0)
+        if (parentDictionary[tag + index].childCount != 0)
         {
-            parentDictionary[tag].GetChild(0).gameObject.SetActive(true);
-            return parentDictionary[tag].GetChild(0).gameObject;
+            parentDictionary[tag + index].GetChild(0).gameObject.SetActive(true);
+            return parentDictionary[tag + index].GetChild(0).gameObject;
         }
 
         foreach (ObjectPoolItem item in itemToPool)
@@ -61,9 +62,9 @@ public class ObjectPool : MonoBehaviour
         return null;
     }
 
-    public void ReturnObject(GameObject returnObj)
+    public void ReturnObject(GameObject returnObj, int index = 0)
     {
         returnObj.SetActive(false);
-        returnObj.transform.parent = parentDictionary[returnObj.tag];
+        returnObj.transform.parent = parentDictionary[returnObj.tag + index];
     }
 }
