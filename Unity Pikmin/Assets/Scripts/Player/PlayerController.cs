@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using System;
+using TMPro;
 
 public class PlayerController : MonoBehaviour, ICollider
 {
@@ -12,6 +13,8 @@ public class PlayerController : MonoBehaviour, ICollider
     public  PlayerState       state;
     public  int               myPikminCount;
     public  GameObject        myHand;
+
+    public  TextMeshProUGUI   textMesh;
 
     private Animator          anim;
     private Vector3           throwPos;
@@ -92,6 +95,8 @@ public class PlayerController : MonoBehaviour, ICollider
     {
         Animation();
         test();
+
+        textMesh.text = pikmins.Count.ToString();
     }
 
     private void Animation()
@@ -240,7 +245,6 @@ public class PlayerController : MonoBehaviour, ICollider
         foreach (Pikmin pik in pikmins)
         {
             if (pik.state != PikminState.STAY) continue;
-            if (pik.PikminTarget != null) continue;
             if (pik.transform.parent != null) continue;
 
             float cmp = (transform.position - pik.transform.position).magnitude;
@@ -322,7 +326,6 @@ public class PlayerController : MonoBehaviour, ICollider
                         foreach (Pikmin pik in pikmins)
                         {
                             if (pik.state != PikminState.STAY) continue;
-                            if (pik.PikminTarget != null) continue;
                             if (pik.transform.parent != null) continue;
 
                             float cmp = (transform.position - pik.transform.position).magnitude;
