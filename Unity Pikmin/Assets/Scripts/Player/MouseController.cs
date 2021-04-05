@@ -36,7 +36,7 @@ public class MouseController : MonoBehaviour
 
         cursor3D.gameObject.SetActive(true);
         cam = Camera.main;
-        lastPosition = PlayerController.FootPos.position;
+        lastPosition = PlayerController.instance.FootPos.position;
     }
 
     // Update is called once per frame
@@ -53,7 +53,7 @@ public class MouseController : MonoBehaviour
 
     private void UpdateLine()
     {
-        lineVisual.SetPosition(0, PlayerController.UserTransform.position);
+        lineVisual.SetPosition(0, PlayerController.instance.UserTransform.position);
         lineVisual.SetPosition(1, GetHit);
     }
 

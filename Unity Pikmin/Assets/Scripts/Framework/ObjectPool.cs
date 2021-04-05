@@ -53,7 +53,7 @@ public class ObjectPool : MonoBehaviour
                 {
                     GameObject _obj = Instantiate(item.prefToPool);
                     _obj.SetActive(true);
-                    _obj.transform.parent = parentDictionary[_obj.tag];
+                    _obj.transform.parent = parentDictionary[_obj.tag + index];
                     return _obj;
                 }
             }

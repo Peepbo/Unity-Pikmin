@@ -8,13 +8,14 @@ public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
 
-    public enum PlayerState   {Idle,Walk,ThrowAction}
+    public  enum PlayerState  {Idle,Walk,ThrowAction}
 
     public  PlayerState       state;
     public  int               myPikminCount;
     public  GameObject        myHand;
 
-    public  TextMeshProUGUI   textMesh;
+    public  int               allNums;
+    public  int               orderNums;
 
     private Animator          anim;
     private Vector3           throwPos;
@@ -26,8 +27,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         instance = this;
-
         anim = transform.GetComponentInChildren<Animator>();
+
         state = PlayerState.Idle;
         FootPos = transform.GetChild(2).transform;
         UserTransform = transform;
@@ -51,7 +52,7 @@ public class PlayerController : MonoBehaviour
 
         foreach(var ob in obj)
         {
-            pikmins.Add(ob.GetComponent<Pikmin>());
+            AddPikmin(ob);
         }
 
         SetAction();
@@ -60,6 +61,7 @@ public class PlayerController : MonoBehaviour
     public void AddPikmin(GameObject obj)
     {
         pikmins.Add(obj.GetComponent<Pikmin>());
+        allNums++;
     }
 
     private void SetAction()
@@ -71,6 +73,8 @@ public class PlayerController : MonoBehaviour
             LeftButton();
             RightButton();
             AutoThrow();
+            Order();
+            ChangeOrderNums();
             anim.SetFloat("MoveSpeed", 0);
         };
 
@@ -80,6 +84,8 @@ public class PlayerController : MonoBehaviour
             CatchPikmin();
             LeftButton();
             RightButton();
+            Order();
+            ChangeOrderNums();
             anim.SetFloat("MoveSpeed", 1);
         };
 
@@ -90,14 +96,7 @@ public class PlayerController : MonoBehaviour
         };
     }
 
-    // Update is called once per frame
-    private void Update()
-    {
-        Animation();
-        test();
-
-        textMesh.text = pikmins.Count.ToString();
-    }
+    private void Update() => Animation();
 
     private void Animation()
     {
@@ -136,6 +135,19 @@ public class PlayerController : MonoBehaviour
             transform.position = pos;
         }
         else state = PlayerState.Idle;
+    }
+
+    private void ChangeOrderNums()
+    {
+        switch (MouseController.instance.GetWheel())
+        {
+            case MouseWheel.UP:
+                if (orderNums + 1<= myPikminCount) orderNums++;
+                break;
+            case MouseWheel.DOWN:
+                if (orderNums - 1 >= 0) orderNums--;
+                break;
+        }
     }
 
     private void LeftButton()
@@ -194,7 +206,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void ThrowPik()
+    private void ThrowPik()
     {
         if (myHand.transform.childCount == 0) return;
 
@@ -222,9 +234,7 @@ public class PlayerController : MonoBehaviour
         pik.FlyPikmin(myHand.transform.position, throwPos, _removable);
     }
 
-    public void ChangeState(PlayerState _state) { state = _state; }
-
-    public void AutoThrow()
+    private void AutoThrow()
     {
         if(Input.GetKeyDown(KeyCode.Backspace))
         {
@@ -265,11 +275,12 @@ public class PlayerController : MonoBehaviour
         if (choose == null) return;
         choose.PickMe(myHand.transform);
         myPikminCount--;
+        orderNums--;
     }
 
     private void CheckThrow()
     {
-        if (myPikminCount == 0) return;
+        if (orderNums == 0) return;
         if (state == PlayerState.Walk) return;
 
         anim.SetTrigger("FastThrow");
@@ -289,84 +300,93 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    private void test()
+    private void Order()
     {
         if(Input.GetMouseButtonDown(2))
         {
             Transform _db = MouseController.instance.GetObjectHit();
             if (_db != null)
             {
-                IObject _obj = _db.GetComponent<IObject>();
-
-                Pikmin choose = null;
-                float dis = 0.0f, cmp;
-
-                switch (_obj.objectType)
+                bool isOut = false;
+                while(orderNums > 0 && !isOut)
                 {
-                    case ObjectType.MONSTER_OBJ:
-                        Enemy _enemy = _db.GetComponent<Enemy>();
+                    IObject _obj = _db.GetComponent<IObject>();
 
-                        foreach (Pikmin pik in pikmins)
-                        {
-                            if (pik.state != PikminState.STAY) continue;
-                            if (pik.transform.parent != null) continue;
+                    Pikmin choose = null;
+                    float dis = 0.0f, cmp;
 
-                            cmp = (transform.position - pik.transform.position).magnitude;
+                    switch (_obj.objectType)
+                    {
+                        case ObjectType.MONSTER_OBJ:
+                            Enemy _enemy = _db.GetComponent<Enemy>();
 
-                            if (choose == null)
+                            foreach (Pikmin pik in pikmins)
                             {
-                                choose = pik;
-                                dis = cmp;
+                                if (pik.state != PikminState.STAY) continue;
+                                if (pik.transform.parent != null) continue;
+
+                                cmp = (transform.position - pik.transform.position).magnitude;
+
+                                if (choose == null)
+                                {
+                                    choose = pik;
+                                    dis = cmp;
+                                }
+
+                                else if (dis > cmp)
+                                {
+                                    choose = pik;
+                                    dis = cmp;
+                                }
                             }
 
-                            else if (dis > cmp)
+                            if (choose == null) return;
+
+                            orderNums--;
+                            myPikminCount--;
+
+                            _enemy.Expansion();
+                            choose.enemyScript = _enemy;
+                            choose.WorkPikmin();
+
+                            break;
+                        case ObjectType.MOVEABLE_OBJ:
+
+                            Removable _removable = _db.GetComponent<Removable>();
+
+                            foreach (Pikmin pik in pikmins)
                             {
-                                choose = pik;
-                                dis = cmp;
-                            }
-                        }
+                                if (pik.state != PikminState.STAY) continue;
+                                if (pik.transform.parent != null) continue;
 
-                        if (choose == null) return;
+                                cmp = (transform.position - pik.transform.position).magnitude;
 
-                        _enemy.Expansion();
-                        choose.enemyScript = _enemy;
-                        choose.WorkPikmin();
+                                if (choose == null)
+                                {
+                                    choose = pik;
+                                    dis = cmp;
+                                }
 
-                        break;
-                    case ObjectType.MOVEABLE_OBJ:
-                        Removable _removable = _db.GetComponent<Removable>();
-
-                        foreach (Pikmin pik in pikmins)
-                        {
-                            if (pik.state != PikminState.STAY) continue;
-                            if (pik.transform.parent != null) continue;
-
-                            cmp = (transform.position - pik.transform.position).magnitude;
-
-                            if (choose == null)
-                            {
-                                choose = pik;
-                                dis = cmp;
+                                else if (dis > cmp)
+                                {
+                                    choose = pik;
+                                    dis = cmp;
+                                }
                             }
 
-                            else if (dis > cmp)
-                            {
-                                choose = pik;
-                                dis = cmp;
-                            }
-                        }
+                            if (choose == null) return;
 
-                        if (choose == null) return;
+                            orderNums--;
+                            myPikminCount--;
 
-                        _removable.Expansion();
-                        choose.removable = _removable;
-                        choose.WorkPikmin();
-                        break;
-                    case ObjectType.TOUCH_OBJ:
-                        Debug.Log("touchable!");
-                        break;
-                    default:
-                        break;
+                            _removable.Expansion();
+                            choose.removable = _removable;
+                            choose.WorkPikmin();
+                            break;
+                        default:
+                            isOut = true;
+                            break;
+                    }
                 }
             }
         }
@@ -381,6 +401,6 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
     }
 
-    public static Transform FootPos { get; private set; }
-    public static Transform UserTransform { get; private set; }
+    public Transform FootPos { get; private set; }
+    public Transform UserTransform { get; private set; }
 }
