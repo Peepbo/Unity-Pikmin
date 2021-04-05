@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public partial class Removable : MonoBehaviour, IObject
+public partial class Removable : Interaction, IObject
 {
     [Header("Gizmo Settings")]
     public Color gColor;
@@ -36,18 +36,45 @@ public partial class Removable : MonoBehaviour, IObject
     }
 
     // Pikmin을 Object에서 해제함
-    public void FinishWork()
+    public override void FinishWork()
     {
         // 공간 축소
         Reduction();
     }
 
     // Pikmin을 factory에 넣음
-    public void Arrangement(Transform trans)
+    public override void Arrangement(Transform trans)
     {
         trans.parent = factory;
 
         Relocation();
+    }
+
+
+    // 공간을 축소하고, location 재 지정함
+    public override void Reduction()
+    {
+        works--;
+
+        SetText();
+
+        FixLocation();
+        Relocation();
+
+        ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
+    }
+
+    // 공간을 확장하고, location 재 지정
+    public override void Expansion()
+    {
+        works++;
+
+        SetText();
+
+        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
+        _colObj.transform.parent = location;
+
+        FixLocation();
     }
 
     // Pikmin이 날아갈 위치를 반환함
@@ -69,32 +96,6 @@ public partial class Removable : MonoBehaviour, IObject
             _child = factory.GetChild(i).GetComponent<Pikmin>();
             _child.PikminTarget = location.GetChild(i);
         }
-    }
-
-    // 공간을 축소하고, location 재 지정함
-    public void Reduction()
-    {
-        works--;
-
-        SetText();
-
-        FixLocation();
-        Relocation();
-
-        ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
-    }
-
-    // 공간을 확장하고, location 재 지정
-    public void Expansion()
-    {
-        works++;
-
-        SetText();
-
-        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
-        _colObj.transform.parent = location;
-
-        FixLocation();
     }
 
     // Location 위치를 works의 개수에 맞춰 재지정함

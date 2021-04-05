@@ -1,17 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Enemy : MonoBehaviour, IObject
+public class Enemy : Interaction, IObject
 {
+    public int works;
+
     private bool isDie;
     public int hp;
     public Vector3 cubeSize;
     public Vector3 center;
     public Transform factory;
-    //public TextMesh textMesh;
+    public Transform location;
 
     public Transform centerPt;
+    public Transform A, B;
 
     [Header("Object Settings")]
     public float objSize;
@@ -27,6 +28,39 @@ public class Enemy : MonoBehaviour, IObject
     {
         if(!isDie) Stick();
     }
+
+    #region  Interaction
+    // Pikmin을 factory에 넣음
+    public override void Arrangement(Transform trans)
+    {
+        trans.parent = factory;
+
+        Pikmin _child = factory.GetChild(factory.childCount - 1).GetComponent<Pikmin>();
+        _child.PikminTarget = location.GetChild(factory.childCount - 1);
+    }
+
+    public override void Expansion()
+    {
+        works++;
+
+        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
+        _colObj.transform.parent = location;
+
+        _colObj.transform.position = Utils.RandomVector(A.position, B.position);
+    }
+
+    public override void FinishWork()
+    {
+        Reduction();
+    }
+
+    public override void Reduction()
+    {
+        works--;
+
+        ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
+    }
+    #endregion
 
     public void Stick()
     {

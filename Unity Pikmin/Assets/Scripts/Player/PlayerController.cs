@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public class PlayerController : MonoBehaviour, ICollider
+public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
 
@@ -284,18 +284,6 @@ public class PlayerController : MonoBehaviour, ICollider
         foreach (var col in cols)
         {
             if (col.CompareTag("Object")) return true;
-
-            if (col.CompareTag("Pikmin"))
-            {
-                ICollider colObj = col.GetComponent<ICollider>();
-
-                Vector3 a = transform.position;
-                a.y = 0;
-                Vector3 b = col.transform.position;
-                b.y = 0;
-                Vector3 v = a - b;
-                colObj.PushedOut(-(v.normalized) * 5 / v.magnitude);
-            }
         }
 
         return false;
@@ -310,25 +298,50 @@ public class PlayerController : MonoBehaviour, ICollider
             {
                 IObject _obj = _db.GetComponent<IObject>();
 
+                Pikmin choose = null;
+                float dis = 0.0f, cmp;
+
                 switch (_obj.objectType)
                 {
                     case ObjectType.MONSTER_OBJ:
-                        Debug.Log("monster!");
                         Enemy _enemy = _db.GetComponent<Enemy>();
-
-                        break;
-                    case ObjectType.MOVEABLE_OBJ:
-                        Debug.Log("moveable!");
-                        Removable _removable = _db.GetComponent<Removable>();
-                        Pikmin choose = null;
-                        float dis = 0.0f;
 
                         foreach (Pikmin pik in pikmins)
                         {
                             if (pik.state != PikminState.STAY) continue;
                             if (pik.transform.parent != null) continue;
 
-                            float cmp = (transform.position - pik.transform.position).magnitude;
+                            cmp = (transform.position - pik.transform.position).magnitude;
+
+                            if (choose == null)
+                            {
+                                choose = pik;
+                                dis = cmp;
+                            }
+
+                            else if (dis > cmp)
+                            {
+                                choose = pik;
+                                dis = cmp;
+                            }
+                        }
+
+                        if (choose == null) return;
+
+                        _enemy.Expansion();
+                        choose.enemyScript = _enemy;
+                        choose.WorkPikmin();
+
+                        break;
+                    case ObjectType.MOVEABLE_OBJ:
+                        Removable _removable = _db.GetComponent<Removable>();
+
+                        foreach (Pikmin pik in pikmins)
+                        {
+                            if (pik.state != PikminState.STAY) continue;
+                            if (pik.transform.parent != null) continue;
+
+                            cmp = (transform.position - pik.transform.position).magnitude;
 
                             if (choose == null)
                             {
@@ -366,11 +379,6 @@ public class PlayerController : MonoBehaviour, ICollider
         Gizmos.DrawWireSphere(transform.position + Vector3.up, 0.5f);
         Gizmos.DrawWireSphere(transform.position, 0.5f);
         Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
-    }
-
-    public void PushedOut(Vector3 direction)
-    {
-        transform.Translate(direction * Time.deltaTime);
     }
 
     public static Transform FootPos { get; private set; }

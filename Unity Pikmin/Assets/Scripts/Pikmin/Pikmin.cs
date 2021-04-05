@@ -7,7 +7,7 @@ using System;
 
 public enum PikminState { STAY, FOLLOW, ATTACK, FLY, CALL }
 
-public class Pikmin : MonoBehaviour, ICollider
+public class Pikmin : MonoBehaviour
 {
     public GameObject leefParticle0, leefParticle1, bottomPoint;
 
@@ -145,16 +145,45 @@ public class Pikmin : MonoBehaviour, ICollider
 
         if (agent.enabled) agent.SetDestination(followTarget.position);
 
-        if (!isDelivery)
+        if(removable || enemyScript)
+        {
+            if (Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
+            {
+                agent.enabled = true;
+            }
+
+            else
+            {
+                agent.enabled = false;
+                transform.position = followTarget.transform.position;
+
+                if(removable)
+                {
+                    transform.LookAt(Spaceship.instance.endPos.position);
+
+                    if (!removable.GetComponent<NavMeshAgent>().enabled)
+                    {
+                        state = PikminState.STAY;
+                    }
+                }
+
+                else if(enemyScript)
+                {
+                    state = PikminState.ATTACK;
+                }
+            }
+        }
+
+        else
         {
             agent.enabled = true;
             agent.speed = 3.5f;
 
             Collider[] cols = Physics.OverlapSphere(transform.position, 0.3f);
 
-            foreach(Collider _collider in cols)
+            foreach (Collider _collider in cols)
             {
-                if(_collider.CompareTag("Pikmin"))
+                if (_collider.CompareTag("Pikmin"))
                 {
                     var script = _collider.GetComponent<Pikmin>();
                     if (script.state == PikminState.STAY)
@@ -168,25 +197,6 @@ public class Pikmin : MonoBehaviour, ICollider
             if (Vector3.Distance(transform.position, followTarget.position) < 2.0f)
             {
                 state = PikminState.STAY;
-            }
-        }
-        else
-        {
-            if(Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
-            {
-                agent.enabled = true;
-            }
-
-            else
-            {
-                agent.enabled = false;
-                transform.position = followTarget.transform.position;
-                transform.LookAt(Spaceship.instance.endPos.position);
-
-                if (!removable.GetComponent<NavMeshAgent>().enabled)
-                {
-                    state = PikminState.STAY;
-                }
             }
         }
     }
@@ -219,11 +229,21 @@ public class Pikmin : MonoBehaviour, ICollider
 
     public void WorkPikmin()
     {
-        isDelivery = true;
+        if(removable)
+        {
+            isDelivery = true;
 
-        removable.Arrangement(transform);
-        agent.stoppingDistance = 0.2f;
-        state = PikminState.FOLLOW;
+            removable.Arrangement(transform);
+            agent.stoppingDistance = 0.2f;
+            state = PikminState.FOLLOW;
+        }
+
+        else if(enemyScript)
+        {
+            enemyScript.Arrangement(transform);
+            agent.stoppingDistance = 0.2f;
+            state = PikminState.FOLLOW;
+        }
     }
 
     private void FixedUpdate() => Animation(); 
@@ -341,6 +361,4 @@ public class Pikmin : MonoBehaviour, ICollider
         get { return followTarget; }
         set { followTarget = value; }
     }
-
-    public void PushedOut(Vector3 direction) => transform.Translate(direction * Time.deltaTime);
 }

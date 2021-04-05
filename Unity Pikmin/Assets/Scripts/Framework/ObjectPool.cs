@@ -47,7 +47,7 @@ public class ObjectPool : MonoBehaviour
 
         foreach (ObjectPoolItem item in itemToPool)
         {
-            if (item.prefToPool.CompareTag(tag))
+            if (item.prefToPool.CompareTag(tag) && item.index == index)
             {
                 if (item.shouldExpend)
                 {

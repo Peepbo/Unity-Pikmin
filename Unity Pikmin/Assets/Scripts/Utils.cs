@@ -14,6 +14,11 @@ static class Utils
         get { return Random.Range(0, 2) == 0 ? -1 : 1; }
     }
 
+    public static Vector3 RandomVector(Vector3 a, Vector3 b)
+    {
+        return new Vector3(Random.Range(a.x, b.x), Random.Range(a.y, b.y), Random.Range(a.z, b.z));
+    }
+
     public static Vector3 CalculateVelocity(Vector3 target, Vector3 origin, float time)
     {
         //define the distance x and y first

@@ -57,8 +57,15 @@ partial class Removable
         {
             agent.enabled = false;
             isArrive = true;
+
+            Pikmin _pik = null;
             while (factory.childCount > 0)
-                factory.GetChild(0).GetComponent<Pikmin>().Init();
+            {
+                _pik = factory.GetChild(0).GetComponent<Pikmin>();
+                _pik.Init();
+                _pik.PikminTarget = null;
+
+            }
 
             Spaceship.instance.PlayEffect();
             Spaceship.instance.ActiveDissemination(seedNum);
