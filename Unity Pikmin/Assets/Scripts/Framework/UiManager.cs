@@ -1,20 +1,26 @@
 ﻿using UnityEngine;
 using TMPro;
+using System;
 
 public class UiManager : MonoBehaviour
 {
-    public PlayerController player;
-
+    [Header("PikminUI")]
     public TextMeshProUGUI allPikminsNumber;
     public TextMeshProUGUI stayPikminsNumber;
     public TextMeshProUGUI orderPikminsNumber;
+    private Action textAct;
 
-    private void Update()
+    private void Start()
     {
-        SetText(allPikminsNumber, player.allNums.ToString());
-        SetText(stayPikminsNumber, player.myPikminCount.ToString());
-        SetText(orderPikminsNumber, player.orderNums.ToString());
+        textAct = () =>
+        {
+            SetText(allPikminsNumber, PlayerController.instance.allNums.ToString());
+            SetText(stayPikminsNumber, PlayerController.instance.myPikminCount.ToString());
+            SetText(orderPikminsNumber, PlayerController.instance.orderNums.ToString());
+        };
     }
+
+    private void Update() => textAct();
 
     private void SetText(TextMeshProUGUI tmPro, string value) { tmPro.text = value; }
 }
