@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Seed : MonoBehaviour
 {
-    private enum SeedState {UP,DOWN,END}
-
     [Header("SeedSettings")]
     //public  GameObject      prefab;
     public  RotateObject    rObj;

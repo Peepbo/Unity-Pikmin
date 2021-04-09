@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-public class Flower : MonoBehaviour, IObject
+public class Flower : MonoBehaviour, IObject, IFoat
 {
     public bool isActive = false;
     public int prefabIndex;
@@ -18,7 +17,10 @@ public class Flower : MonoBehaviour, IObject
         objectType = ObjectType.TOUCH_OBJ;
     }
 
-    void FixedUpdate()
+    void FixedUpdate() => Fall();
+
+    #region IFoatingObject
+    public void Fall()
     {
         if (isActive)
         {
@@ -62,9 +64,12 @@ public class Flower : MonoBehaviour, IObject
             }
         }
     }
+    #endregion
 
+    #region IObject
     public float infoSize { get; set; }
     public ObjectType objectType { get; set; }
+    #endregion
 
     private void OnDrawGizmos()
     {

@@ -8,8 +8,6 @@ public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
 
-    public  enum PlayerState  {Idle,Walk,ThrowAction}
-
     public  PlayerState       state;
     public  int               myPikminCount;
     public  GameObject        myHand;
@@ -238,6 +236,8 @@ public class PlayerController : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Backspace))
         {
+            if (orderNums <= 0) return;
+
             Vector3 mouseHit = MouseController.instance.GetHit;
             mouseHit.y = transform.position.y;
             transform.LookAt(mouseHit);
@@ -274,8 +274,11 @@ public class PlayerController : MonoBehaviour
 
         if (choose == null) return;
         choose.PickMe(myHand.transform);
+
+        if (orderNums == myPikminCount) orderNums--;
+
         myPikminCount--;
-        orderNums--;
+
     }
 
     private void CheckThrow()
@@ -318,7 +321,10 @@ public class PlayerController : MonoBehaviour
                     switch (_obj.objectType)
                     {
                         case ObjectType.MONSTER_OBJ:
-                            Enemy _enemy = _db.GetComponent<Enemy>();
+                            EnemyManager enem = _db.GetComponent<EnemyManager>();
+                            //IInteractionObject _interactionObj = _db.GetComponent<IInteractionObject>();
+                            //IEnemy _enem = _db.GetComponent<IEnemy>();
+                            //Enemy _enemy = _db.GetComponent<Enemy>();
 
                             foreach (Pikmin pik in pikmins)
                             {
@@ -345,10 +351,9 @@ public class PlayerController : MonoBehaviour
                             orderNums--;
                             myPikminCount--;
 
-                            _enemy.Expansion();
-                            choose.enemyScript = _enemy;
+                            enem.Expansion();
+                            choose.enemy = enem;
                             choose.WorkPikmin();
-
                             break;
                         case ObjectType.MOVEABLE_OBJ:
 

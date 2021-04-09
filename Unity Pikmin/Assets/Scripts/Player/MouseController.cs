@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public enum MouseWheel{ UP,STAY,DOWN }
+
 
 public class MouseController : MonoBehaviour
 {

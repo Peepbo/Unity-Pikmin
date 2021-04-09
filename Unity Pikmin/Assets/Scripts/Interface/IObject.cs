@@ -1,8 +1,4 @@
-﻿public enum ObjectType
-{
-    MONSTER_OBJ, MOVEABLE_OBJ, TOUCH_OBJ
-}
-
+﻿// infoSize and ObjectType
 public interface IObject
 {
     float infoSize { get; set; }

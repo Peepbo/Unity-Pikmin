@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public partial class Removable : Interaction, IObject
+public partial class Removable : MonoBehaviour,IInteractionObject
 {
     [Header("Gizmo Settings")]
     public Color gColor;
@@ -35,24 +35,37 @@ public partial class Removable : Interaction, IObject
         ColorUpdate();
     }
 
+    #region Interaction
+    // Pikmin을 factory에 넣음
+    public void Arrangement()
+    {
+        //trans.parent = factory;
+
+        Relocation();
+    }
+
+    // 공간을 확장하고, location 재 지정
+    public void Expansion()
+    {
+        works++;
+
+        SetText();
+
+        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
+        _colObj.transform.parent = location;
+
+        FixLocation();
+    }
+
     // Pikmin을 Object에서 해제함
-    public override void FinishWork()
+    public void FinishWork()
     {
         // 공간 축소
         Reduction();
     }
 
-    // Pikmin을 factory에 넣음
-    public override void Arrangement(Transform trans)
-    {
-        trans.parent = factory;
-
-        Relocation();
-    }
-
-
     // 공간을 축소하고, location 재 지정함
-    public override void Reduction()
+    public void Reduction()
     {
         works--;
 
@@ -64,18 +77,9 @@ public partial class Removable : Interaction, IObject
         ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
     }
 
-    // 공간을 확장하고, location 재 지정
-    public override void Expansion()
-    {
-        works++;
-
-        SetText();
-
-        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
-        _colObj.transform.parent = location;
-
-        FixLocation();
-    }
+    public float infoSize { get; set; }
+    public ObjectType objectType { get; set; }
+    #endregion
 
     // Pikmin이 날아갈 위치를 반환함
     public Vector3 ThrowPos()
@@ -109,9 +113,6 @@ public partial class Removable : Interaction, IObject
             location.GetChild(i).position += new Vector3(Mathf.Cos(angle) * gSize, 0, Mathf.Sin(angle) * gSize);
         }
     }
-
-    public float infoSize { get; set; }
-    public ObjectType objectType { get; set; }
 
     private void OnDrawGizmos()
     {
