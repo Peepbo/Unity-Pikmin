@@ -224,9 +224,18 @@ public class Pikmin : MonoBehaviour
 
     private void Attack()
     {
-        if (enemy == null)
+        if (Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
         {
-            if (CheckGround()) state = PikminState.STAY;
+            agent.enabled = true;
+            state = PikminState.FOLLOW;
+        }
+
+        else
+        {
+            if (enemy == null)
+            {
+                if (CheckGround()) state = PikminState.STAY;
+            }
         }
     }
 
@@ -280,9 +289,6 @@ public class Pikmin : MonoBehaviour
         if (CheckGround()) state = PikminState.CALL;
         else state = PikminState.STAY;
 
-        enemy = null;
-       
-        //transform.rotation = Quaternion.identity;
         agent.stoppingDistance = 2f;
 
         if (transform.parent != null)
@@ -292,6 +298,11 @@ public class Pikmin : MonoBehaviour
                 isDelivery = false;
                 removable.FinishWork();
                 removable = null;
+            }
+            else if(enemy)
+            {
+                enemy.FinishWork();
+                enemy = null;
             }
 
             transform.parent = null;
