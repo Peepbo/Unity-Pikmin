@@ -218,8 +218,10 @@ class Bee : EnemyManager, IFoat
         if (hp <= 0)
         {
             isDie = true;
-            var _obj = ObjectPool.instance.BorrowObject("Object", 1);
+            var _obj = ObjectPool.instance.BorrowObject("Object", 2);
             _obj.transform.position = transform.position;
+            _obj.transform.rotation = transform.rotation;
+            _obj.transform.GetComponent<Animator>().Play("Idle_Die");
             _obj.transform.parent = null;
 
             Pikmin _pik = null;
