@@ -4,18 +4,6 @@ using UnityEngine.AI;
 
 class Bee : EnemyManager, IFoat
 {
-    // Common Info
-
-    // (int)        Hp, Works
-    // (bool)       bIsDie
-    // (Transform)  factory, location
-
-    // Gizmo Settings
-
-    // (Color)      gColor
-    // (float)      gSize, gYpos, gAngle
-
-    // bee Valiable
     [Header("Bee Settings")]
     public EnemyState state;
     public int prefabIndex;
@@ -220,8 +208,11 @@ class Bee : EnemyManager, IFoat
             isDie = true;
             var _obj = ObjectPool.instance.BorrowObject("Object", 2);
             _obj.transform.position = transform.position;
-            _obj.transform.rotation = transform.rotation;
-            _obj.transform.GetComponent<Animator>().Play("Idle_Die");
+
+            var _model = _obj.transform.GetChild(0);
+            _model.rotation = transform.rotation;
+            _model.GetComponent<Animator>().Play("Idle_Die");
+
             _obj.transform.parent = null;
 
             Pikmin _pik = null;
