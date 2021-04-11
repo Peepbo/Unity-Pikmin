@@ -22,34 +22,20 @@ class Bee : EnemyManager, IFoat
     public float force;
     public bool isActive;
 
-    private NavMeshAgent agent;
-    private Rigidbody rigid;
     private Vector3 goal;
     private float time;
 
-    private void Awake()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        rigid = GetComponent<Rigidbody>();
-    }
-
     private void Start()
     {
+        //var animSettings = anim.GetComponent<AnimSetting>();
+
+
         infoSize = 1f;
         objectType = ObjectType.TOUCH_OBJ;
         state = EnemyState.STAY;
     }
 
     private void Update() => Animation();
-
-    #region EnemyManager .. abstract
-    public override void Damaged(int value)
-    {
-        hp -= value;
-
-        if (hp <= 0) isDie = true;
-    }
-    #endregion
 
     #region IInteractionObject .. interface
     public override void Arrangement()
@@ -65,6 +51,7 @@ class Bee : EnemyManager, IFoat
         _colObj.transform.parent = location;
 
         FixLocation();
+        Relocation();
     }
 
     public override void FinishWork()
@@ -148,8 +135,9 @@ class Bee : EnemyManager, IFoat
                 _pikminRigid.velocity = Vector3.zero;
                 _pikminRigid.AddForce(transform.up * force * 1.5f, ForceMode.Impulse);
 
-                state = EnemyState.ATTACK;
+                state = EnemyState.FALLDOWN;
                 objectType = ObjectType.MONSTER_OBJ;
+                GetComponent<SphereCollider>().radius *= 1.25f;
                 agent.enabled = false;
                 break;
             }
@@ -223,9 +211,27 @@ class Bee : EnemyManager, IFoat
         }
     }
 
-    private void Attack()
+    private void FallDown()
     {
+        if (isDie) return;
 
+        if (hp <= 0)
+        {
+            isDie = true;
+            var _obj = ObjectPool.instance.BorrowObject("Object", 1);
+            _obj.transform.position = transform.position;
+            _obj.transform.parent = null;
+
+            Pikmin _pik = null;
+            while (factory.childCount > 0)
+            {
+                _pik = factory.GetChild(0).GetComponent<Pikmin>();
+                _pik.Init();
+                _pik.PikminTarget = null;
+            }
+
+            gameObject.SetActive(false);
+        }
     }
 
     private void Animation()
@@ -233,14 +239,17 @@ class Bee : EnemyManager, IFoat
         switch (state)
         {
             case EnemyState.STAY:
+                anim.SetInteger("animation", 1);
                 Stay();
                 Fall();
                 break;
             case EnemyState.MOVE:
+                anim.SetInteger("animation", 2);
                 Move();
                 break;
-            case EnemyState.ATTACK:
-                Attack();
+            case EnemyState.FALLDOWN:
+                anim.SetInteger("animation", 5);
+                FallDown();
                 break;
         }
     }

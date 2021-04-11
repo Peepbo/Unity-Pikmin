@@ -1,4 +1,4 @@
-﻿public enum EnemyState { STAY, MOVE, ATTACK }
+﻿public enum EnemyState { STAY, MOVE, ATTACK, FALLDOWN }
 
 public enum ObjectType { MONSTER_OBJ, MOVEABLE_OBJ, TOUCH_OBJ }
 

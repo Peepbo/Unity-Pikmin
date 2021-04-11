@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.AI;
 
 public abstract class EnemyManager : MonoBehaviour, IInteractionObject
 {
@@ -10,6 +11,9 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
     public int works;
     public bool isDie;
     public Transform factory, location;
+    protected NavMeshAgent agent;
+    protected Rigidbody rigid;
+    protected Animator anim;
 
     [Header("Gizmo Settings")]
     public Color gColor;
@@ -17,8 +21,17 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
     public float gYpos;
     protected float gAngle;
 
-    //Enemy .. abstract
-    abstract public void Damaged(int value);
+    virtual protected void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        rigid = GetComponent<Rigidbody>();
+        anim = transform.GetChild(0).GetComponent<Animator>();
+    }
+
+    public void Damaged(int value)
+    {
+        hp -= value;
+    }
 
     //IInteractionObject .. interface
     abstract public void Arrangement();

@@ -256,6 +256,7 @@ public class PlayerController : MonoBehaviour
         {
             if (pik.state != PikminState.STAY) continue;
             if (pik.transform.parent != null) continue;
+            if (pik.PikminTarget == null) continue;
 
             float cmp = (transform.position - pik.transform.position).magnitude;
 
@@ -322,9 +323,6 @@ public class PlayerController : MonoBehaviour
                     {
                         case ObjectType.MONSTER_OBJ:
                             EnemyManager enem = _db.GetComponent<EnemyManager>();
-                            //IInteractionObject _interactionObj = _db.GetComponent<IInteractionObject>();
-                            //IEnemy _enem = _db.GetComponent<IEnemy>();
-                            //Enemy _enemy = _db.GetComponent<Enemy>();
 
                             foreach (Pikmin pik in pikmins)
                             {
