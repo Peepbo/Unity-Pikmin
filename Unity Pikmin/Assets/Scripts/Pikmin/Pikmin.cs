@@ -148,11 +148,14 @@ public class Pikmin : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
             {
+                Debug.Log(transform.name);
                 agent.enabled = true;
             }
 
             else
             {
+                Debug.Log(transform.name + " follow");
+                Debug.Log(followTarget.position + "\n");
                 agent.enabled = false;
                 transform.position = followTarget.transform.position;
 
@@ -293,6 +296,8 @@ public class Pikmin : MonoBehaviour
 
         if (transform.parent != null)
         {
+            transform.parent = null;
+
             if(isDelivery)
             {
                 isDelivery = false;
@@ -304,8 +309,6 @@ public class Pikmin : MonoBehaviour
                 enemy.FinishWork();
                 enemy = null;
             }
-
-            transform.parent = null;
         }
     }
 

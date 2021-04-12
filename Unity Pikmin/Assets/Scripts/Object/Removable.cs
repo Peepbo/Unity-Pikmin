@@ -39,8 +39,6 @@ public partial class Removable : MonoBehaviour,IInteractionObject
     // Pikmin을 factory에 넣음
     public void Arrangement()
     {
-        //trans.parent = factory;
-
         Relocation();
     }
 
@@ -73,7 +71,6 @@ public partial class Removable : MonoBehaviour,IInteractionObject
 
         FixLocation();
         Relocation();
-
         ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
     }
 

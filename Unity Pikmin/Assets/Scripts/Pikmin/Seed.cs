@@ -19,7 +19,7 @@ public class Seed : MonoBehaviour
 
     private void Awake() => rigid = GetComponent<Rigidbody>();
 
-    private void Start()
+    private void OnEnable()
     {
         force = 12f;
         speed = 3f;
@@ -30,6 +30,8 @@ public class Seed : MonoBehaviour
         randomForce.z = Random.Range(0.05f, 0.125f) * Utils.RandomSign;
         randomForce *= force;
 
+        rigid.useGravity = true;
+        rigid.isKinematic = false;
         rigid.AddForce(randomForce, ForceMode.Impulse);
 
         state = SeedState.UP;
