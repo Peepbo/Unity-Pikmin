@@ -5337,6 +5337,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Devil_Tree_Nightmare
       objectReference: {fileID: 0}
+    - target: {fileID: 4615792951892988636, guid: b15db69f6441c474eadaa63298d39fbb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b15db69f6441c474eadaa63298d39fbb, type: 3}
 --- !u!1 &282364393
