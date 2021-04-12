@@ -20,7 +20,7 @@ public partial class Removable : MonoBehaviour,IInteractionObject
     [Header("Object Settings")]
     public float objSize;
 
-    private void Awake()
+    private void OnEnable()
     {
         infoSize = objSize;
         objectType = ObjectType.MOVEABLE_OBJ;
