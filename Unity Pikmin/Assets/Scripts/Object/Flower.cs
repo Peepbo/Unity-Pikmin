@@ -49,6 +49,7 @@ public class Flower : MonoBehaviour, IObject, IFoat
         {
             if (col.CompareTag("Pikmin"))
             {
+                rigid.isKinematic = false;
                 isActive = true;
                 rigid.AddForce(transform.up * force, ForceMode.Impulse);
                 rigid.useGravity = true;

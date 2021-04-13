@@ -21,8 +21,11 @@ class Bee : EnemyManager, IFoat
     {
         if (isActive)
         {
+            Debug.Log("hear");
             RaycastHit _hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out _hit, 1f))
+
+            int layerMask = 1 << LayerMask.NameToLayer("ground");
+            if (Physics.Raycast(transform.position, Vector3.down, out _hit, 1, layerMask))
             {
                 if (_hit.transform.CompareTag("Floor"))
                 {
@@ -32,15 +35,12 @@ class Bee : EnemyManager, IFoat
                     obj.transform.parent = null;
 
                     obj.GetComponent<EnsnarePikmin>().Ensnare();
-
-                    gameObject.SetActive(false);
                 }
             }
 
             return;
         }
 
-        //Gizmos.DrawWireSphere(transform.position + Vector3.up * 0.5f, gSize);
         Collider[] cols = Physics.OverlapSphere(transform.position + Vector3.up * 0.5f, gSize);
 
         foreach (Collider col in cols)
@@ -69,32 +69,28 @@ class Bee : EnemyManager, IFoat
     }
     #endregion
 
-    private void FallDown()
+    private void CheckDie()
     {
-        if (isDie) return;
+        if (!isDie) return;
 
-        if (hp <= 0)
+        var _obj = ObjectPool.instance.BorrowObject("Object", 2);
+        _obj.transform.position = transform.position;
+
+        var _model = _obj.transform.GetChild(0);
+        _model.rotation = transform.rotation;
+        _model.GetComponent<Animator>().Play("Idle_Die");
+
+        _obj.transform.parent = null;
+
+        Pikmin _pik = null;
+        while (factory.childCount > 0)
         {
-            isDie = true;
-            var _obj = ObjectPool.instance.BorrowObject("Object", 2);
-            _obj.transform.position = transform.position;
-
-            var _model = _obj.transform.GetChild(0);
-            _model.rotation = transform.rotation;
-            _model.GetComponent<Animator>().Play("Idle_Die");
-
-            _obj.transform.parent = null;
-
-            Pikmin _pik = null;
-            while (factory.childCount > 0)
-            {
-                _pik = factory.GetChild(0).GetComponent<Pikmin>();
-                _pik.Init();
-                _pik.PikminTarget = null;
-            }
-
-            gameObject.SetActive(false);
+            _pik = factory.GetChild(0).GetComponent<Pikmin>();
+            _pik.Init();
+            _pik.PikminTarget = null;
         }
+
+        gameObject.SetActive(false);
     }
 
     protected override void Animation()
@@ -116,7 +112,7 @@ class Bee : EnemyManager, IFoat
             case EnemyState.FALLDOWN:
                 anim.SetInteger("animation", 5);
 
-                FallDown();
+                CheckDie();
                 break;
         }
     }

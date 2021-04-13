@@ -9,6 +9,8 @@ public class Pikmin : MonoBehaviour
 {
     public GameObject leefParticle0, leefParticle1, bottomPoint;
 
+    public float hp;
+
     public PikminState state;
     private Vector3 flyTarget;
     private Transform followTarget;
@@ -37,6 +39,8 @@ public class Pikmin : MonoBehaviour
 
         charAnim.AddAct("Attack", () => { if (enemy != null) enemy.Damaged(1); });
         charAnim.AddAct("Follow", () => state = PikminState.FOLLOW);
+        charAnim.AddAct("Hit", () => state = PikminState.STAY);
+        charAnim.AddAct("Die", () => ObjectPool.instance.ReturnObject(gameObject));
     }
 
     private void Start() => SetAction();
@@ -80,7 +84,24 @@ public class Pikmin : MonoBehaviour
         };
     }
 
-    public bool CheckGround()
+    public void Damaged(float value)
+    {
+        hp -= value;
+
+        if(hp <= 0)
+        {
+            PlayerController.instance.allNums--;
+            
+            if(PlayerController.instance.myPikminCount > 0)
+                PlayerController.instance.myPikminCount--;
+            if(PlayerController.instance.orderNums > 0) 
+                PlayerController.instance.orderNums--;
+
+            anim.SetTrigger("Die");
+        }
+    }
+
+    private bool CheckGround()
     {
         if (transform.parent != null) return true;
 
@@ -148,14 +169,11 @@ public class Pikmin : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
             {
-                Debug.Log(transform.name);
                 agent.enabled = true;
             }
 
             else
             {
-                Debug.Log(transform.name + " follow");
-                Debug.Log(followTarget.position + "\n");
                 agent.enabled = false;
                 transform.position = followTarget.transform.position;
 
@@ -283,6 +301,9 @@ public class Pikmin : MonoBehaviour
                 break;
             case PikminState.CALL:
                 anim.SetInteger("animation", 6);
+                break;
+            case PikminState.HIT:
+                anim.SetInteger("animation", 5);
                 break;
         }
     }

@@ -64,7 +64,6 @@ partial class Removable
                 _pik = factory.GetChild(0).GetComponent<Pikmin>();
                 _pik.Init();
                 _pik.PikminTarget = null;
-
             }
 
             Spaceship.instance.PlayEffect();

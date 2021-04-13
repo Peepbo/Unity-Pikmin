@@ -7,16 +7,27 @@ using UnityEngine.AI;
 public abstract class EnemyManager : MonoBehaviour, IInteractionObject
 {
     [Header("Enemy Common Info")]
+    public int maxHp;
     public int hp;
     public int works;
     public bool isDie;
     public Transform factory, location;
+
     protected NavMeshAgent agent;
     protected Rigidbody rigid;
     protected Animator anim;
     protected EnemyState state;
+
     private float time;
     private Vector3 goal;
+
+    [Header("Health Sprite")]
+    public Transform HpBar;
+    public Transform Mask;
+    public Transform hpStartPoint;
+    public Transform hpEndPoint;
+
+    private float saveDistanceHpBar;
 
     [Header("Gizmo Settings")]
     public Color gColor;
@@ -25,21 +36,38 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
     protected float gAngle;
 
 
-    virtual protected void Awake()
+    protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         rigid = GetComponent<Rigidbody>();
         anim = transform.GetChild(0).GetComponent<Animator>();
+
+        //hpStartPoint = HpBar.GetChild(0);
+        //hpEndPoint = HpBar.GetChild(1);
     }
 
-    virtual protected void Start()
+    protected virtual void Start()
     {
         infoSize = 1f;
         objectType = ObjectType.MONSTER_OBJ;
         state = EnemyState.STAY;
+
+        saveDistanceHpBar = hpStartPoint.localPosition.y;
+
+        hp = maxHp;
+        HpBar.gameObject.SetActive(false);
     }
 
-    private void Update() => Animation();
+    private void Update()
+    {
+        Animation();
+
+        if (hp != maxHp)
+        {
+            HpBar.gameObject.SetActive(true);
+            HpBar.LookAt(Camera.main.transform);
+        }
+    }
 
 
 
@@ -107,9 +135,15 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
 
 
     //Enemy functions
-    public void Damaged(int value)
+    public virtual void Damaged(int value)
     {
+        if (isDie) return;
+
         hp -= value;
+
+        Mask.localPosition = hpStartPoint.localPosition + Vector3.down * saveDistanceHpBar * ((float)(maxHp - hp) / maxHp);
+
+        if (hp <= 0) isDie = true;
     }
 
     private Vector3 NewPath(bool isCol)
@@ -122,7 +156,7 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         return transform.position + dir;
     }
 
-    protected void Move()
+    protected virtual void Move()
     {
         Debug.DrawRay(transform.position + transform.forward, Vector3.down * 5f);
         if (!Physics.Raycast(transform.position + transform.forward, Vector3.down, 5f))
@@ -139,7 +173,7 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         }
     }
 
-    protected void Stay()
+    protected virtual void Stay()
     {
         time += Time.deltaTime;
 
@@ -155,15 +189,13 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         }
     }
 
-    abstract protected void Animation();
+    protected abstract void Animation();
 
 
 
     //Gizmo
-    private void OnDrawGizmos()
+    protected virtual void OnDrawGizmos()
     {
-        //Gizmos.DrawWireSphere(transform.position + Vector3.up * 0.5f, gSize);
-
         Handles.color = gColor;
         Handles.DrawWireDisc(transform.position + Vector3.down * gYpos, Vector3.down, gSize);
 
