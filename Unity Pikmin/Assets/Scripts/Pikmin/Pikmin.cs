@@ -20,12 +20,9 @@ public class Pikmin : MonoBehaviour
     private CapsuleCollider col;
 
     private Animator anim;
-
-    private Action stayAct, followAct, flyAct, attackAct;
     public bool isDelivery;
 
     public EnemyManager enemy;
-    //public IEnemy enemInterface;
 
     private void Awake()
     {
@@ -39,49 +36,8 @@ public class Pikmin : MonoBehaviour
 
         charAnim.AddAct("Attack", () => { if (enemy != null) enemy.Damaged(1); });
         charAnim.AddAct("Follow", () => state = PikminState.FOLLOW);
-        charAnim.AddAct("Hit", () => state = PikminState.STAY);
+        charAnim.AddAct("Hit", () => state = PikminState.ATTACK);
         charAnim.AddAct("Die", () => ObjectPool.instance.ReturnObject(gameObject));
-    }
-
-    private void Start() => SetAction();
-
-    private void SetAction()
-    {
-        stayAct = () =>
-        {
-            if (!CheckGround()) return;
-
-            Stay();
-            anim.SetInteger("animation", 1);
-
-            if (!followTarget)
-            {
-                leefParticle0.SetActive(true);
-                leefParticle1.SetActive(true);
-            }
-        };
-        followAct = () =>
-        {
-            if (!CheckGround()) return;
-
-            Move();
-            anim.SetInteger("animation", 2);
-
-            leefParticle0.SetActive(false);
-            leefParticle1.SetActive(false);
-        };
-        flyAct = () =>
-        {
-            if (!CheckGround()) return;
-
-            Fly();
-        };
-        attackAct = () =>
-        {
-            anim.SetInteger("animation", 3);
-
-            Attack();
-        };
     }
 
     public void Damaged(float value)
@@ -105,10 +61,11 @@ public class Pikmin : MonoBehaviour
     {
         if (transform.parent != null) return true;
 
-        Debug.DrawRay(bottomPoint.transform.position, Vector3.down * 1f, Color.red);
+        Debug.DrawRay(bottomPoint.transform.position + Vector3.up * 0.25f, Vector3.down * 1f, Color.red);
 
         RaycastHit _hit;
-        if (Physics.Raycast(bottomPoint.transform.position, Vector3.down, out _hit, 1f))
+        int layerMask = 1 << LayerMask.NameToLayer("ground");
+        if (Physics.Raycast(bottomPoint.transform.position, Vector3.down, out _hit, 1f, layerMask))
         {
             if (_hit.transform.CompareTag("Floor"))
             {
@@ -288,21 +245,46 @@ public class Pikmin : MonoBehaviour
         switch (state)
         {
             case PikminState.STAY:
-                stayAct();
+
+                if (!CheckGround()) return;
+
+                Stay();
+                anim.SetInteger("animation", 1);
+
+                if (!followTarget)
+                {
+                    leefParticle0.SetActive(true);
+                    leefParticle1.SetActive(true);
+                }
                 break;
             case PikminState.FOLLOW:
-                followAct();
+
+                if (!CheckGround()) return;
+
+                Move();
+                anim.SetInteger("animation", 2);
+
+                leefParticle0.SetActive(false);
+                leefParticle1.SetActive(false);
                 break;
             case PikminState.FLY:
-                flyAct();
+
+                if (!CheckGround()) return;
+
+                Fly();
                 break;
             case PikminState.ATTACK:
-                attackAct();
+
+                anim.SetInteger("animation", 3);
+
+                Attack();
                 break;
             case PikminState.CALL:
+
                 anim.SetInteger("animation", 6);
                 break;
             case PikminState.HIT:
+
                 anim.SetInteger("animation", 5);
                 break;
         }
@@ -391,7 +373,7 @@ public class Pikmin : MonoBehaviour
         transform.parent = enemy.factory;
         state = PikminState.ATTACK;
         this.enemy = enemy;
-        //enemInterface = enemy.GetComponent<IEnemy>();
+
         rigid.useGravity = false;
         rigid.velocity = Vector3.zero;
         transform.LookAt(enemy.transform);

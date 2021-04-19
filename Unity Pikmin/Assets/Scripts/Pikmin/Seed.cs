@@ -5,7 +5,6 @@ using UnityEngine;
 public class Seed : MonoBehaviour
 {
     [Header("SeedSettings")]
-    //public  GameObject      prefab;
     public  RotateObject    rObj;
     public  Animator        anim;
     private Rigidbody       rigid;

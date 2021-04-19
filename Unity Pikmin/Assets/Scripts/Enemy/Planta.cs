@@ -34,6 +34,8 @@ public class Planta : EnemyManager
     {
         base.Damaged(value);
 
+        if (isDie) return;
+
         if (isSleep)
         {
             isSleep = false; 
@@ -44,16 +46,17 @@ public class Planta : EnemyManager
             anim.SetInteger("animation", 1);
         }
 
-        if(isDie)
+        if (hp <= 0)
         {
             anim.SetTrigger("Die");
+            isDie = true;
         }
     }
 
     private void Attack()
     {
         Pikmin _pik = target.GetComponent<Pikmin>();
-        _pik.Init();
+        //_pik.Init();
 
         if(_pik.PikminTarget != transform)
         {
@@ -62,7 +65,7 @@ public class Planta : EnemyManager
             if (PlayerController.instance.orderNums > 0)
                 PlayerController.instance.orderNums--;
         }
-        _pik.PikminTarget = null;
+        //_pik.PikminTarget = null;
         _pik.state = PikminState.HIT;
         _pik.Damaged(1);
         _pik.GetComponent<NavMeshAgent>().velocity = Vector3.zero;
