@@ -142,8 +142,6 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         hp -= value;
 
         Mask.localPosition = hpStartPoint.localPosition + Vector3.down * saveDistanceHpBar * ((float)(maxHp - hp) / maxHp);
-
-        if (hp <= 0) isDie = true;
     }
 
     private Vector3 NewPath(bool isCol)

@@ -21,20 +21,16 @@ class Bee : EnemyManager, IFoat
     {
         if (isActive)
         {
-            Debug.Log("hear");
             RaycastHit _hit;
 
             int layerMask = 1 << LayerMask.NameToLayer("ground");
-            if (Physics.Raycast(transform.position, Vector3.down, out _hit, 1, layerMask))
+            if (Physics.Raycast(transform.position, Vector3.down, out _hit, .1f, layerMask))
             {
+                Debug.LogError(_hit.transform.name);
                 if (_hit.transform.CompareTag("Floor"))
                 {
+                    state = EnemyState.FALLDOWN;
                     rigid.isKinematic = true;
-                    var obj = ObjectPool.instance.BorrowObject("Object", prefabIndex);
-                    obj.transform.position = transform.position;
-                    obj.transform.parent = null;
-
-                    obj.GetComponent<EnsnarePikmin>().Ensnare();
                 }
             }
 
@@ -58,8 +54,7 @@ class Bee : EnemyManager, IFoat
                 _pikmin.transform.rotation = Quaternion.identity;
                 _pikminRigid.velocity = Vector3.zero;
                 _pikminRigid.AddForce(transform.up * force * 1.5f, ForceMode.Impulse);
-
-                state = EnemyState.FALLDOWN;
+                
                 objectType = ObjectType.MONSTER_OBJ;
                 GetComponent<SphereCollider>().radius *= 1.25f;
                 agent.enabled = false;
@@ -105,7 +100,7 @@ class Bee : EnemyManager, IFoat
                 break;
             case EnemyState.MOVE:
                 anim.SetInteger("animation", 2);
-                base.Move();
+                if(!isActive) base.Move();
 
                 Fall();
                 break;
