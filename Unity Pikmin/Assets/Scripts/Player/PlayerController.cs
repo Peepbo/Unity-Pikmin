@@ -19,13 +19,14 @@ public class PlayerController : MonoBehaviour
     private Vector3           throwPos;
     private Vector3           direction;
 
-    private Action            idleAct, walkAct, throwAct;
     private List<Pikmin>      pikmins = new List<Pikmin>();
+    private CharacterController controller;
 
     private void Awake()
     {
         instance = this;
         anim = transform.GetComponentInChildren<Animator>();
+        controller = GetComponent<CharacterController>();
 
         state = PlayerState.Idle;
         FootPos = transform.GetChild(2).transform;
@@ -52,46 +53,12 @@ public class PlayerController : MonoBehaviour
         {
             AddPikmin(ob);
         }
-
-        SetAction();
     }
 
     public void AddPikmin(GameObject obj)
     {
         pikmins.Add(obj.GetComponent<Pikmin>());
         allNums++;
-    }
-
-    private void SetAction()
-    {
-        idleAct = () =>
-        {
-            Move();
-            CatchPikmin();
-            LeftButton();
-            RightButton();
-            AutoThrow();
-            Order();
-            ChangeOrderNums();
-            anim.SetFloat("MoveSpeed", 0);
-        };
-
-        walkAct = () =>
-        {
-            Move();
-            CatchPikmin();
-            LeftButton();
-            RightButton();
-            Order();
-            ChangeOrderNums();
-            anim.SetFloat("MoveSpeed", 1);
-        };
-
-        throwAct = () =>
-        {
-            anim.SetBool("RightClick", true);
-            anim.SetFloat("MoveSpeed", 0);
-        };
     }
 
     private void Update() => Animation();
@@ -101,13 +68,30 @@ public class PlayerController : MonoBehaviour
         switch (state)
         {
             case PlayerState.Idle:
-                idleAct();
+
+                Move();
+                CatchPikmin();
+                LeftButton();
+                RightButton();
+                AutoThrow();
+                Order();
+                ChangeOrderNums();
+                anim.SetFloat("MoveSpeed", 0);
                 break;
             case PlayerState.Walk:
-                walkAct();
+
+                Move();
+                CatchPikmin();
+                LeftButton();
+                RightButton();
+                Order();
+                ChangeOrderNums();
+                anim.SetFloat("MoveSpeed", 1);
                 break;
             case PlayerState.ThrowAction:
-                throwAct();
+
+                anim.SetBool("RightClick", true);
+                anim.SetFloat("MoveSpeed", 0);
                 break;
         }
     }
@@ -117,22 +101,20 @@ public class PlayerController : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        Vector3 pos = transform.position;
+        Vector3 move = new Vector3(Input.GetAxisRaw("Horizontal"), 0,
+                Input.GetAxisRaw("Vertical"));
 
-        direction = new Vector3(h, 0, v);
-        if (Mathf.Abs(h) + Mathf.Abs(v) > 0f)
+        controller.Move(move * Time.deltaTime * 5f);
+
+        if (!Utils.AlmostZero(move.magnitude))
         {
             state = PlayerState.Walk;
-
+            direction = new Vector3(h, 0, v);
             transform.rotation = Quaternion.LookRotation(direction);
-
-            if (Collision()) return;
-            pos.x += h * Time.deltaTime * 5f;
-            pos.z += v * Time.deltaTime * 5f;
-
-            transform.position = pos;
         }
         else state = PlayerState.Idle;
+
+        controller.Move(Vector3.down * 9.8f * Time.deltaTime);
     }
 
     private void ChangeOrderNums()
