@@ -9,3 +9,5 @@ public enum PlayerState { Idle, Walk, ThrowAction }
 public enum PikminState { STAY, FOLLOW, ATTACK, FLY, CALL, HIT }
 
 public enum SeedState { UP, DOWN, END }
+
+public enum ObjectPoolType { COLLIDER, PIKMIN, FLOWER, ENEMY }

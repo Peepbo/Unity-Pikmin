@@ -9,6 +9,8 @@ public class ObjectPoolItem
     public int index;
     public GameObject prefToPool;
     public bool shouldExpend;
+
+    public ObjectPoolType type;
 }
 
 public class ObjectPool : MonoBehaviour
