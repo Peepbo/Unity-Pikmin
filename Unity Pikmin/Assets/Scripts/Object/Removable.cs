@@ -49,7 +49,7 @@ public partial class Removable : MonoBehaviour,IInteractionObject
 
         SetText();
 
-        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
+        GameObject _colObj = ObjectPool.instance.BorrowObject(ObjectPoolType.COLLIDER);
         _colObj.transform.parent = location;
 
         FixLocation();

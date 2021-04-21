@@ -68,7 +68,7 @@ class Bee : EnemyManager, IFoat
     {
         if (!isDie) return;
 
-        var _obj = ObjectPool.instance.BorrowObject("Object", 2);
+        var _obj = ObjectPool.instance.BorrowObject(ObjectPoolType.ENEMY, prefabIndex);
         _obj.transform.position = transform.position;
 
         var _model = _obj.transform.GetChild(0);

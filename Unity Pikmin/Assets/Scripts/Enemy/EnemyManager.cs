@@ -81,7 +81,7 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
     {
         works++;
 
-        GameObject _colObj = ObjectPool.instance.BorrowObject("Collider");
+        GameObject _colObj = ObjectPool.instance.BorrowObject(ObjectPoolType.COLLIDER);
         _colObj.transform.parent = location;
 
         FixLocation();

@@ -77,7 +77,7 @@ public class Seed : MonoBehaviour
                 {
                     if(col.CompareTag("Player"))
                     {
-                        var obj = ObjectPool.instance.BorrowObject("Pikmin");
+                        var obj = ObjectPool.instance.BorrowObject(ObjectPoolType.PIKMIN, 1);
                         obj.transform.parent = null;
                         obj.transform.position = transform.position; 
                         PlayerController.instance.AddPikmin(obj);

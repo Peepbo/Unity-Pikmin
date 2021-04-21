@@ -32,10 +32,10 @@ public class Spaceship : MonoBehaviour
         while(seedNum > 0)
         {
             Big();
-            GameObject obj = ObjectPool.instance.BorrowObject("Seed");
+            GameObject obj = ObjectPool.instance.BorrowObject(ObjectPoolType.PIKMIN, 0);
             obj.transform.position = topPos.position;
             obj.transform.parent = null;
-            //Instantiate(seed, topPos.position, Quaternion.identity);
+
             seedNum--;
             yield return new WaitForSeconds(time);
         }

@@ -30,7 +30,7 @@ public class Flower : MonoBehaviour, IObject, IFoat
                 if (_hit.transform.CompareTag("Floor"))
                 {
                     rigid.isKinematic = true;
-                    var obj = ObjectPool.instance.BorrowObject("Object", prefabIndex);
+                    var obj = ObjectPool.instance.BorrowObject(ObjectPoolType.FLOWER, prefabIndex);
                     obj.transform.position = transform.position;
                     obj.transform.parent = null;
 
