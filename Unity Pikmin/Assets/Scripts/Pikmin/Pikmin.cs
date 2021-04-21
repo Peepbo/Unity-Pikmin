@@ -61,11 +61,11 @@ public class Pikmin : MonoBehaviour
     {
         if (transform.parent != null) return true;
 
-        Debug.DrawRay(transform.position, Vector3.down * 1f, Color.red);
+        Debug.DrawRay(transform.position + Vector3.up * 0.25f, Vector3.down * 1f, Color.red);
 
         RaycastHit _hit;
         int layerMask = 1 << LayerMask.NameToLayer("ground");
-        if (Physics.Raycast(transform.position, Vector3.down, out _hit, 1f, layerMask))
+        if (Physics.Raycast(transform.position + Vector3.up * 0.25f, Vector3.down, out _hit, 1f, layerMask))
         {
             if (_hit.transform.CompareTag("Floor"))
             {
