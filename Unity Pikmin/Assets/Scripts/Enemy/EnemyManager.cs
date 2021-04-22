@@ -41,9 +41,6 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         agent = GetComponent<NavMeshAgent>();
         rigid = GetComponent<Rigidbody>();
         anim = transform.GetChild(0).GetComponent<Animator>();
-
-        //hpStartPoint = HpBar.GetChild(0);
-        //hpEndPoint = HpBar.GetChild(1);
     }
 
     protected virtual void Start()
@@ -164,10 +161,11 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         }
 
         //almost same
-        else if (Vector3.Distance(transform.position, goal) < 0.25f)
+        else if (Vector3.Distance(transform.position, goal) < 0.5f)
         {
             state = EnemyState.STAY;
             agent.velocity = Vector3.zero;
+            agent.SetDestination(transform.position);
         }
     }
 
