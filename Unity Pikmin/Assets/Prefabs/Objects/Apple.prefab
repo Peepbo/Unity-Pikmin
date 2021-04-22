@@ -383,7 +383,7 @@ MonoBehaviour:
   gYpos: 0.63
   useObjectpool: 0
   seedNum: 2
-  needs: 3
+  needs: 4
   factory: {fileID: 6209114976013013963}
   location: {fileID: 6209114976112087069}
   objSize: 1

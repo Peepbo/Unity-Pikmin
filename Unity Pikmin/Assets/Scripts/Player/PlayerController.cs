@@ -104,7 +104,7 @@ public class PlayerController : MonoBehaviour
         Vector3 move = new Vector3(Input.GetAxisRaw("Horizontal"), 0,
                 Input.GetAxisRaw("Vertical"));
 
-        controller.Move(move * Time.deltaTime * 5f);
+        if(!Collision()) controller.Move(move * Time.deltaTime * 5f);
 
         if (!Utils.AlmostZero(move.magnitude))
         {
@@ -379,11 +379,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.cyan;
-
-        Gizmos.DrawWireSphere(transform.position + Vector3.up, 0.5f);
-        Gizmos.DrawWireSphere(transform.position, 0.5f);
-        Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
+        //Gizmos.color = Color.cyan;
+        //
+        //Gizmos.DrawWireSphere(transform.position + Vector3.up, 0.5f);
+        //Gizmos.DrawWireSphere(transform.position, 0.5f);
+        //Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
     }
 
     public Transform FootPos { get; private set; }
