@@ -8,6 +8,7 @@ using System;
 public class Pikmin : MonoBehaviour
 {
     public GameObject leefParticle0, leefParticle1, bottomPoint;
+    public ParticleSystem footParticle;
 
     public float hp;
 
@@ -38,19 +39,21 @@ public class Pikmin : MonoBehaviour
         charAnim.AddAct("Follow", () => state = PikminState.FOLLOW);
         charAnim.AddAct("Hit", () => state = PikminState.ATTACK);
         charAnim.AddAct("Die", () => ObjectPool.instance.ReturnObject(gameObject));
+        charAnim.AddAct("Foot Particle", () => footParticle.Play());
+
     }
 
     public void Damaged(float value)
     {
         hp -= value;
 
-        if(hp <= 0)
+        if (hp <= 0)
         {
             PlayerController.instance.allNums--;
-            
-            if(PlayerController.instance.myPikminCount > 0)
+
+            if (PlayerController.instance.myPikminCount > 0)
                 PlayerController.instance.myPikminCount--;
-            if(PlayerController.instance.orderNums > 0) 
+            if (PlayerController.instance.orderNums > 0)
                 PlayerController.instance.orderNums--;
 
             anim.SetTrigger("Die");
@@ -85,7 +88,7 @@ public class Pikmin : MonoBehaviour
 
     private void Stay()
     {
-        if(transform.parent == null)
+        if (transform.parent == null)
         {
             col.enabled = true;
             if (followTarget != null)
@@ -100,7 +103,7 @@ public class Pikmin : MonoBehaviour
             }
         }
 
-        else if(removable != null)
+        else if (removable != null)
         {
             transform.rotation = Quaternion.identity;
             if (removable.GetComponent<NavMeshAgent>().enabled)
@@ -122,7 +125,7 @@ public class Pikmin : MonoBehaviour
 
         if (agent.enabled) agent.SetDestination(followTarget.position);
 
-        if(removable || enemy)
+        if (removable || enemy)
         {
             if (Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
             {
@@ -134,7 +137,7 @@ public class Pikmin : MonoBehaviour
                 agent.enabled = false;
                 transform.position = followTarget.transform.position;
 
-                if(removable)
+                if (removable)
                 {
                     transform.LookAt(Spaceship.instance.endPos.position);
 
@@ -144,7 +147,7 @@ public class Pikmin : MonoBehaviour
                     }
                 }
 
-                else if(enemy)
+                else if (enemy)
                 {
                     Vector3 _tempPos = enemy.transform.position;
                     _tempPos.y = transform.position.y;
@@ -202,6 +205,8 @@ public class Pikmin : MonoBehaviour
 
     private void Attack()
     {
+        if (followTarget == null) return;
+
         if (Vector3.Distance(transform.position, followTarget.position) >= 0.25f)
         {
             agent.enabled = true;
@@ -219,7 +224,7 @@ public class Pikmin : MonoBehaviour
 
     public void WorkPikmin()
     {
-        if(removable)
+        if (removable)
         {
             isDelivery = true;
 
@@ -229,7 +234,7 @@ public class Pikmin : MonoBehaviour
             state = PikminState.FOLLOW;
         }
 
-        else if(enemy)
+        else if (enemy)
         {
             transform.parent = enemy.factory;
             enemy.Arrangement();
@@ -238,7 +243,7 @@ public class Pikmin : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() => Animation(); 
+    private void FixedUpdate() => Animation();
 
     private void Animation()
     {
@@ -301,13 +306,13 @@ public class Pikmin : MonoBehaviour
         {
             transform.parent = null;
 
-            if(isDelivery)
+            if (isDelivery)
             {
                 isDelivery = false;
                 removable.FinishWork();
                 removable = null;
             }
-            else if(enemy)
+            else if (enemy)
             {
                 enemy.FinishWork();
                 enemy = null;

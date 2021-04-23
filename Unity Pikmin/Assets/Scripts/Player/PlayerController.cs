@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     private List<Pikmin>      pikmins = new List<Pikmin>();
     private CharacterController controller;
 
+    public  ParticleSystem    leftDustParticle;
+    public  ParticleSystem    rightDustParticle;
+
     private void Awake()
     {
         instance = this;
@@ -43,6 +46,8 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("RightClick", false);
             state = PlayerState.Idle;
         });
+        charAnim.AddAct("LeftDust", () => leftDustParticle.Play());
+        charAnim.AddAct("RightDust", () => rightDustParticle.Play());
     }
 
     private void Start()
