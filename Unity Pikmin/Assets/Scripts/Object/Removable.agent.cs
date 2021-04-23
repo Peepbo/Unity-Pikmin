@@ -37,6 +37,8 @@ partial class Removable
     // spaceship으로 이동
     private void Move()
     {
+        agent.speed = Mathf.Clamp(1.0f + (works - needs / needs), 1.0f, 1.5f);
+
         if (needs <= works)
         {
             if (timer < 3f) timer += Time.deltaTime;

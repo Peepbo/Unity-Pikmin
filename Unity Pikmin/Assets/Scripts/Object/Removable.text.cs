@@ -19,7 +19,11 @@ partial class Removable
 
     private void SetText()
     {
-        if (works <= 0) tmPro.enabled = false;
+        if (works <= 0)
+        {
+            tmPro.SetText(0 + "\n―\n" + needs);
+            tmPro.enabled = false;
+        }
 
         else
         {

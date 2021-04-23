@@ -80,8 +80,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gColor: {r: 1, g: 0, b: 0, a: 1}
-  gSize: 1.15
-  gYpos: -0.44
+  gSize: 1.25
+  gYpos: -0.26
   useObjectpool: 0
   seedNum: 2
   needs: 2
