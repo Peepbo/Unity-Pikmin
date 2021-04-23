@@ -5,7 +5,6 @@ using UnityEngine.AI;
 class Bee : EnemyManager, IFoat
 {
     [Header("Bee Settings")]
-    public int prefabIndex;
     public float force;
     public bool isActive;
 
@@ -64,30 +63,6 @@ class Bee : EnemyManager, IFoat
     }
     #endregion
 
-    private void CheckDie()
-    {
-        if (!isDie) return;
-
-        var _obj = ObjectPool.instance.BorrowObject(ObjectPoolType.ENEMY, prefabIndex);
-        _obj.transform.position = transform.position;
-
-        var _model = _obj.transform.GetChild(0);
-        _model.rotation = transform.rotation;
-        _model.GetComponent<Animator>().Play("Idle_Die");
-
-        _obj.transform.parent = null;
-
-        Pikmin _pik = null;
-        while (factory.childCount > 0)
-        {
-            _pik = factory.GetChild(0).GetComponent<Pikmin>();
-            _pik.Init();
-            _pik.PikminTarget = null;
-        }
-
-        gameObject.SetActive(false);
-    }
-
     protected override void Animation()
     {
         switch (base.state)
@@ -107,7 +82,7 @@ class Bee : EnemyManager, IFoat
             case EnemyState.FALLDOWN:
                 anim.SetInteger("animation", 5);
 
-                CheckDie();
+                base.CheckDie();
                 break;
         }
     }

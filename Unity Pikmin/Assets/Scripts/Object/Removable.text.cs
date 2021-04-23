@@ -13,6 +13,7 @@ partial class Removable
     private void TextAwake()
     {
         tmPro = textMeshObj.GetComponent<TextMeshPro>();
+        tmPro.SetText(0 + "\n―\n" + needs);
         tmPro.enabled = false;
     }
 

@@ -8,8 +8,6 @@ using UnityEngine.AI;
 public class Planta : EnemyManager
 {
     [Header("Bee Settings")]
-    public int prefabIndex;
-
     public bool isSleep;
     public float findRadius;
 
@@ -50,6 +48,7 @@ public class Planta : EnemyManager
         {
             anim.SetTrigger("Die");
             isDie = true;
+            base.CheckDie();
         }
     }
 

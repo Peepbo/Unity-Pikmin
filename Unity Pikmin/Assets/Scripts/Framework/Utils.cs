@@ -26,12 +26,6 @@ static class Utils
         return Mathf.Abs(value) < errorValue;
     }
 
-    //return bool, char is number
-    public static bool IsNumber (char ch)
-    {
-        return ch >= '0' && ch <= '9';
-    }
-
     public static Vector3 CalculateVelocity(Vector3 target, Vector3 origin, float time)
     {
         //define the distance x and y first

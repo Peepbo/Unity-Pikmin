@@ -11,6 +11,7 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
     public int hp;
     public int works;
     public bool isDie;
+    public int prefabIndex;
     public Transform factory, location;
 
     protected NavMeshAgent agent;
@@ -139,6 +140,30 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         hp -= value;
 
         Mask.localPosition = hpStartPoint.localPosition + Vector3.down * saveDistanceHpBar * ((float)(maxHp - hp) / maxHp);
+    }
+
+    protected void CheckDie()
+    {
+        if (!isDie) return;
+
+        var _obj = ObjectPool.instance.BorrowObject(ObjectPoolType.ENEMY, prefabIndex);
+        _obj.transform.position = transform.position;
+
+        var _model = _obj.transform.GetChild(0);
+        _model.rotation = transform.rotation;
+        _model.GetComponent<Animator>().Play("Idle_Die");
+
+        _obj.transform.parent = null;
+
+        Pikmin _pik = null;
+        while (factory.childCount > 0)
+        {
+            _pik = factory.GetChild(0).GetComponent<Pikmin>();
+            _pik.Init();
+            _pik.PikminTarget = null;
+        }
+
+        gameObject.SetActive(false);
     }
 
     private Vector3 NewPath(bool isCol)
