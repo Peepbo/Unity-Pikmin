@@ -113,8 +113,8 @@ MonoBehaviour:
   gSize: 1.35
   gYpos: -0.55
   useObjectpool: 1
-  seedNum: 0
-  needs: 5
+  seedNum: 1
+  needs: 1
   factory: {fileID: 576867400643388981}
   location: {fileID: 576867400135359046}
   objSize: 1
@@ -133,7 +133,7 @@ NavMeshAgent:
   m_Acceleration: 20
   avoidancePriority: 50
   m_AngularSpeed: 360
-  m_StoppingDistance: 2
+  m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
   m_AutoRepath: 1
