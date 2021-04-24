@@ -7,7 +7,7 @@ using UnityEngine.AI;
 
 public class Planta : EnemyManager
 {
-    [Header("Bee Settings")]
+    [Header("Planta Settings")]
     public bool isSleep;
     public float findRadius;
 

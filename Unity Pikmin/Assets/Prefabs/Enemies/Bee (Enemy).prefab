@@ -405,6 +405,7 @@ MonoBehaviour:
   hp: 0
   works: 0
   isDie: 0
+  prefabIndex: 0
   factory: {fileID: 7785468776486294833}
   location: {fileID: 7785468776390257540}
   HpBar: {fileID: 240893647}
@@ -412,9 +413,8 @@ MonoBehaviour:
   hpStartPoint: {fileID: 615008096}
   hpEndPoint: {fileID: 1977531840}
   gColor: {r: 1, g: 0, b: 1, a: 1}
-  gSize: 0.6
-  gYpos: -0.47
-  prefabIndex: 0
+  gSize: 0.86
+  gYpos: -0.29
   force: 1
   isActive: 0
 --- !u!54 &7785468776436194440

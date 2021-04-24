@@ -81,7 +81,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gColor: {r: 1, g: 0, b: 0, a: 1}
   gSize: 1.47
-  gYpos: -0.09
+  gYpos: 0.15
   useObjectpool: 0
   seedNum: 2
   needs: 3
@@ -108,7 +108,7 @@ NavMeshAgent:
   m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 1
-  m_BaseOffset: 0.2
+  m_BaseOffset: 0.69
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
 --- !u!135 &5887961657903726769
