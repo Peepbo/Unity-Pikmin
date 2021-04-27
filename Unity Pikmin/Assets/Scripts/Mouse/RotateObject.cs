@@ -6,5 +6,5 @@ public class RotateObject : MonoBehaviour
 {
     public Vector3 dir;
     public float force;
-    void Update() => transform.Rotate(dir * force);
+    void Update() => transform.Rotate(dir * force * Time.deltaTime);
 }

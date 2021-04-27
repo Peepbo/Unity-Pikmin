@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 static class Utils
 {
@@ -14,6 +15,20 @@ static class Utils
         get { return Random.Range(0, 2) == 0 ? -1 : 1; }
     }
 
+    //return List<float>, get random n floats between a and b
+    public static List<float> RandomFloats(float a, float b, int n)
+    {
+        List<float> fList = new List<float>();
+
+        while(n > 0)
+        {
+            fList.Add(Random.Range(a, b));
+            n--;
+        }
+
+        return fList;
+    }
+
     //return vector3, get random Vector between a and b
     public static Vector3 RandomVector(Vector3 a, Vector3 b)
     {
@@ -24,6 +39,11 @@ static class Utils
     public static bool AlmostZero (float value, float errorValue = 0.001f)
     {
         return Mathf.Abs(value) < errorValue;
+    }
+
+    public static bool AlmostNumber (float myValue, float targetValue, float errorValue = 0.001f)
+    {
+        return Mathf.Abs(targetValue - myValue) < errorValue;
     }
 
     public static Vector3 CalculateVelocity(Vector3 target, Vector3 origin, float time)
