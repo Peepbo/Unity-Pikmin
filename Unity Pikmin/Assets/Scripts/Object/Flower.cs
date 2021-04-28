@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Flower : MonoBehaviour, IObject, IFoat
+public class Flower : MonoBehaviour, IObject, IFloat
 {
     public bool isActive = false;
     public int prefabIndex;

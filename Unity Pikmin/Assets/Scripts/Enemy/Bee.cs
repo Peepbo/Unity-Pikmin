@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine.AI;
 
-class Bee : EnemyManager, IFoat
+class Bee : EnemyManager, IFloat
 {
     [Header("Bee Settings")]
     public float force;

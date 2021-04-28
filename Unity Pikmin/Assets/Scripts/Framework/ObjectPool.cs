@@ -93,6 +93,8 @@ public class ObjectPool : MonoBehaviour
             GameObject borrowObject = borrowParent.GetChild(0).gameObject;
 
             borrowObject.SetActive(true);
+            borrowObject.transform.parent = null;
+
             return borrowObject;
         }
 
@@ -109,6 +111,8 @@ public class ObjectPool : MonoBehaviour
                     newObject.name = type.ToString() + index;
 
                     newObject.SetActive(true);
+                    newObject.transform.parent = null;
+
                     return newObject;
                 }
 
