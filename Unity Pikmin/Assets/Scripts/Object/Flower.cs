@@ -19,7 +19,7 @@ public class Flower : MonoBehaviour, IObject, IFloat
 
     void FixedUpdate() => Fall();
 
-    #region IFoatingObject
+    #region IFloatingObject
     public void Fall()
     {
         if (isActive)
@@ -32,8 +32,8 @@ public class Flower : MonoBehaviour, IObject, IFloat
                     rigid.isKinematic = true;
                     var obj = ObjectPool.instance.BorrowObject(ObjectPoolType.FLOWER, prefabIndex);
                     obj.transform.position = transform.position;
-                    obj.transform.parent = null;
-
+                    obj.GetComponent<Rigidbody>().isKinematic = true;
+                    obj.GetComponent<Rigidbody>().velocity = Vector3.zero;
                     obj.GetComponent<EnsnarePikmin>().Ensnare();
 
                     gameObject.SetActive(false);
