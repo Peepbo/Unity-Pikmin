@@ -35,17 +35,13 @@ static class Utils
         return new Vector3(Random.Range(a.x, b.x), Random.Range(a.y, b.y), Random.Range(a.z, b.z));
     }
 
-    //return bool, abs(value) < errorValue (default errorValue = 0.001f)
-    public static bool AlmostZero (float value, float errorValue = 0.001f)
-    {
-        return Mathf.Abs(value) < errorValue;
-    }
-
-    public static bool AlmostNumber (float myValue, float targetValue, float errorValue = 0.001f)
+    //return bool, abs(value0 - value1) < errorValue (default errorValue = 0.001f)
+    public static bool AlmostSame (float myValue, float targetValue, float errorValue = 0.001f)
     {
         return Mathf.Abs(targetValue - myValue) < errorValue;
     }
 
+    //return vector3, get vector to fly with a parabolic
     public static Vector3 CalculateVelocity(Vector3 target, Vector3 origin, float time)
     {
         //define the distance x and y first

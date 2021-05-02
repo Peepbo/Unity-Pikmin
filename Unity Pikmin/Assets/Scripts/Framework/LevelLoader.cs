@@ -63,7 +63,7 @@ public class LevelLoader : MonoBehaviour
         List<float> fList = Utils.RandomFloats(0.01f, 0.3f, 5);
         slider.gameObject.SetActive(true);
 
-        while (!Utils.AlmostNumber(slider.value, 1f))
+        while (!Utils.AlmostSame(slider.value, 1f))
         {
             float randomValue = fList[Random.Range(0, fList.Count)];
 

@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour
 
         if(!Collision()) controller.Move(move * Time.deltaTime * 5f);
 
-        if (!Utils.AlmostZero(move.magnitude))
+        if (!Utils.AlmostSame(move.magnitude, 0f))
         {
             state = PlayerState.Walk;
             direction = new Vector3(h, 0, v);
