@@ -112,7 +112,7 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         }
     }
 
-    private void FixLocation()
+    public void FixLocation()
     {
         for (int i = 0; i < works; i++)
         {

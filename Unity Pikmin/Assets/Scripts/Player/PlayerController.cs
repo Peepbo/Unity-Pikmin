@@ -382,15 +382,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        //Gizmos.color = Color.cyan;
-        //
-        //Gizmos.DrawWireSphere(transform.position + Vector3.up, 0.5f);
-        //Gizmos.DrawWireSphere(transform.position, 0.5f);
-        //Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.82f + direction * 0.3f, 0.3f);
-    }
-
     public Transform FootPos { get; private set; }
     public Transform UserTransform { get; private set; }
 }

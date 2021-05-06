@@ -8,4 +8,8 @@ public interface IInteractionObject : IObject
     void FinishWork();
 
     void Reduction();
+
+    void Relocation();
+
+    void FixLocation();
 }

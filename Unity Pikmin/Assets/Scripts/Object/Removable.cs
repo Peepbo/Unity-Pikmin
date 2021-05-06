@@ -73,10 +73,10 @@ public partial class Removable : MonoBehaviour,IInteractionObject
         Relocation();
         ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
     }
+    #endregion
 
     public float infoSize { get; set; }
     public ObjectType objectType { get; set; }
-    #endregion
 
     // Pikmin이 날아갈 위치를 반환함
     public Vector3 ThrowPos()
@@ -100,7 +100,7 @@ public partial class Removable : MonoBehaviour,IInteractionObject
     }
 
     // Location 위치를 works의 개수에 맞춰 재지정함
-    private void FixLocation()
+    public void FixLocation()
     {
         for (int i = 0; i < works; i++)
         {
