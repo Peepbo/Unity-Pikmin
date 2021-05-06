@@ -101,7 +101,7 @@ public abstract class EnemyManager : MonoBehaviour, IInteractionObject
         ObjectPool.instance.ReturnObject(location.GetChild(location.childCount - 1).gameObject);
     }
 
-    private void Relocation()
+    public void Relocation()
     {
         Pikmin _child = null;
 
