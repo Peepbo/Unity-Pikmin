@@ -41,6 +41,11 @@ static class Utils
         return Mathf.Abs(targetValue - myValue) < errorValue;
     }
 
+    public static float DecimalRoundDown(float Value, int saveCount)
+    {
+        return Value % Time.frameCount * (int)Mathf.Pow(10, saveCount) / (int)Mathf.Pow(10, saveCount);
+    }
+
     //return vector3, get vector to fly with a parabolic
     public static Vector3 CalculateVelocity(Vector3 target, Vector3 origin, float time)
     {
